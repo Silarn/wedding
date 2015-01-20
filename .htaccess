@@ -47,6 +47,7 @@
     RewriteCond %{REQUEST_URI} !\.ogg
     RewriteCond %{REQUEST_URI} !docs/.*
     RewriteCond %{REQUEST_URI} !themes/.*
+    RewriteCond %{REQUEST_URI} !\jmr.php
     RewriteRule ^ index.php [L,NC]
 
     ##
