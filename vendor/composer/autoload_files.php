@@ -6,13 +6,17 @@ $vendorDir = dirname(dirname(__FILE__));
 $baseDir = dirname($vendorDir);
 
 return array(
-    $vendorDir . '/wp-cli/php-cli-tools/lib/cli/cli.php',
-    $vendorDir . '/swiftmailer/swiftmailer/lib/swift_required.php',
+    $vendorDir . '/symfony/var-dumper/Symfony/Component/VarDumper/Resources/functions/dump.php',
+    $vendorDir . '/nikic/php-parser/lib/bootstrap.php',
     $vendorDir . '/guzzlehttp/streams/src/functions.php',
-    $vendorDir . '/kriswallsmith/assetic/src/functions.php',
+    $vendorDir . '/swiftmailer/swiftmailer/lib/swift_required.php',
     $vendorDir . '/guzzlehttp/guzzle/src/functions.php',
+    $vendorDir . '/kriswallsmith/assetic/src/functions.php',
+    $vendorDir . '/illuminate/html/helpers.php',
     $vendorDir . '/october/rain/src/Support/helpers.php',
     $vendorDir . '/ircmaxell/password-compat/lib/password.php',
-    $vendorDir . '/phpseclib/phpseclib/phpseclib/Crypt/Random.php',
+    $vendorDir . '/psy/psysh/src/Psy/functions.php',
+    $vendorDir . '/danielstjules/stringy/src/Create.php',
+    $vendorDir . '/laravel/framework/src/Illuminate/Foundation/helpers.php',
     $vendorDir . '/laravel/framework/src/Illuminate/Support/helpers.php',
 );

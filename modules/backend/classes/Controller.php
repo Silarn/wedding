@@ -15,10 +15,11 @@ use Exception;
 use BackendAuth;
 use Backend\Models\UserPreferences;
 use Backend\Models\BackendPreferences;
-use System\Classes\SystemException;
-use System\Classes\ApplicationException;
+use System\Classes\ErrorHandler;
+use October\Rain\Exception\SystemException;
+use October\Rain\Exception\ValidationException;
+use October\Rain\Exception\ApplicationException;
 use October\Rain\Extension\Extendable;
-use October\Rain\Support\ValidationException;
 use Illuminate\Database\Eloquent\MassAssignmentException;
 use Illuminate\Http\RedirectResponse;
 
@@ -187,7 +188,7 @@ class Controller extends Extendable
             if (!BackendAuth::check()) {
                 return Request::ajax()
                     ? Response::make(Lang::get('backend::lang.page.access_denied.label'), 403)
-                    : Redirect::guest(Backend::url('backend/auth'));
+                    : Backend::redirectGuest('backend/auth');
             }
 
             /*
@@ -434,7 +435,7 @@ class Controller extends Extendable
                 );
             }
             catch (Exception $ex) {
-                return Response::make(ApplicationException::getDetailedMessage($ex), 500);
+                throw $ex;
             }
         }
 
@@ -536,7 +537,7 @@ class Controller extends Extendable
      */
     public function handleError($exception)
     {
-        $errorMessage = ApplicationException::getDetailedMessage($exception);
+        $errorMessage = ErrorHandler::getDetailedMessage($exception);
         $this->fatalError = $errorMessage;
         $this->vars['fatalError'] = $errorMessage;
     }

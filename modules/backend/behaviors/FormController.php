@@ -9,9 +9,8 @@ use Redirect;
 use Backend;
 use Backend\Classes\FormField;
 use Backend\Classes\ControllerBehavior;
-use October\Rain\Support\Util;
 use October\Rain\Router\Helper as RouterHelper;
-use System\Classes\ApplicationException;
+use ApplicationException;
 use Exception;
 
 /**
@@ -124,12 +123,16 @@ class FormController extends ControllerBehavior
             $this->controller->formExtendFieldsBefore($this->formWidget);
         });
 
-        $this->formWidget->bindEvent('form.extendFields', function () {
-            $this->controller->formExtendFields($this->formWidget);
+        $this->formWidget->bindEvent('form.extendFields', function ($fields) {
+            $this->controller->formExtendFields($this->formWidget, $fields);
         });
 
         $this->formWidget->bindEvent('form.beforeRefresh', function ($saveData) {
             return $this->controller->formExtendRefreshData($this->formWidget, $saveData);
+        });
+
+        $this->formWidget->bindEvent('form.refreshFields', function ($fields) {
+            return $this->controller->formExtendRefreshFields($this->formWidget, $fields);
         });
 
         $this->formWidget->bindEvent('form.refresh', function ($result) {
@@ -155,6 +158,7 @@ class FormController extends ControllerBehavior
     protected function prepareVars($model)
     {
         $this->controller->vars['formModel'] = $model;
+        $this->controller->vars['formContext'] = $this->formGetContext();
         $this->controller->vars['formRecordName'] = Lang::get($this->getConfig('name', 'backend::lang.model.name'));
     }
 
@@ -380,14 +384,14 @@ class FormController extends ControllerBehavior
         }
 
         if (post('redirect', true)) {
-            $redirectUrl = Backend::url($this->getRedirectUrl($context));
+            $redirectUrl = $this->getRedirectUrl($context);
         }
 
         if ($model && $redirectUrl) {
             $redirectUrl = RouterHelper::parseValues($model, array_keys($model->getAttributes()), $redirectUrl);
         }
 
-        return ($redirectUrl) ? Redirect::to($redirectUrl) : null;
+        return ($redirectUrl) ? Backend::redirect($redirectUrl) : null;
     }
 
     /**
@@ -623,7 +627,7 @@ class FormController extends ControllerBehavior
      * @param Backend\Widgets\Form $host The hosting form widget
      * @return void
      */
-    public function formExtendFields($host)
+    public function formExtendFields($host, $fields)
     {
     }
 
@@ -634,6 +638,16 @@ class FormController extends ControllerBehavior
      * @return array
      */
     public function formExtendRefreshData($host, $saveData)
+    {
+    }
+
+    /**
+     * Called when the form is refreshed, giving the opportunity to modify the form fields.
+     * @param Backend\Widgets\Form $host The hosting form widget
+     * @param array $fields Current form fields
+     * @return array
+     */
+    public function formExtendRefreshFields($host, $fields)
     {
     }
 

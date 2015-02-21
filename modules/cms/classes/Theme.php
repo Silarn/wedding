@@ -2,14 +2,14 @@
 
 use URL;
 use File;
+use Yaml;
 use Lang;
 use Cache;
 use Event;
 use Config;
 use DbDongle;
-use October\Rain\Support\Yaml;
 use System\Models\Parameters;
-use System\Classes\SystemException;
+use SystemException;
 use Cms\Models\ThemeData;
 use DirectoryIterator;
 
@@ -68,7 +68,7 @@ class Theme
             $dirName = $this->getDirName();
         }
 
-        return base_path().Config::get('cms.themesDir').'/'.$dirName;
+        return themes_path().'/'.$dirName;
     }
 
     /**
@@ -129,10 +129,9 @@ class Theme
         $activeTheme = Config::get('cms.activeTheme');
 
         if (DbDongle::hasDatabase()) {
-            $dbResult = Parameters::findRecord(self::ACTIVE_KEY)
-                ->remember(1440, self::ACTIVE_KEY)
-                ->pluck('value')
-            ;
+            $dbResult = Cache::remember(self::ACTIVE_KEY, 1440, function() {
+                return Parameters::findRecord(self::ACTIVE_KEY)->pluck('value');
+            });
 
             if ($dbResult !== null && static::exists($dbResult)) {
                 $activeTheme = $dbResult;
@@ -212,9 +211,7 @@ class Theme
      */
     public static function all()
     {
-        $path = base_path().Config::get('cms.themesDir');
-
-        $it = new DirectoryIterator($path);
+        $it = new DirectoryIterator(themes_path());
         $it->rewind();
 
         $result = [];

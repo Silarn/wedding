@@ -1,3 +1,46 @@
+* **Build 206** (2015-02-21)
+  - The back-end code editor now supports the use of [Emmet](http://emmet.io/).
+  - Added the ability to prune Event and Request log records.
+
+* **Build 199** (2015-02-19)
+  - The **/uploads** directory has been moved to **/storage/app/uploads** to make way for CDN support. This directory should be moved on the file system and the config (`cms.uploadsPath`) updated.
+
+* **Build 192** (2015-02-14)
+  - For security reasons a vague error message is shown when a user tries to sign in unsuccessfully and the setting `app.debug` is disabled.
+  - Added "Auto close tags and special characters" to Code editor preferences.
+
+* **Build 187** (2015-02-12)
+  - **Upgraded framework to Laravel version 5**, see the [end of beta page](http://octobercms.com/beta#advanced-upgrade) for information on how to upgrade.
+  - Introduced a linking policy to control the way URLs are generated globally (see config cms.linkPolicy).
+  - Popup control now supports several sizes via `data-size` attribute: giant, huge, large, small, tiny.
+  - Added new scaffold command for creating form widgets `create:formwidget Acme.Blog PostSelector`.
+
+* **Build 186** (2015-02-03)
+  - File Upload form widget can now specify `fileTypes` for restricting which file extensions can be uploaded.
+
+* **Build 184** (2015-01-31)
+  - Lists now support exporting to CSV format via the default **export** controller action.
+  - Platforms can *opt-in* for bleeding edge updates by enabling a config setting (`cms.edgeUpdates`), this helps perform testing before a stable version is deployed.
+
+* **Build 183** (2015-01-22)
+  - Relation Controller now supports *has one* and *belongs to* relations (see Backend > Relations docs).
+
+* **Build 179** (2015-01-18)
+  - The Settings page is no longer governed by a global permission, each settings entry should have its own permission definition.
+
+* **Build 178** (2015-01-16)
+  - The collapsed back-end side navigation now has a less annoying 200ms delay.
+
+* **Build 175** (2015-01-13)
+  - The variable `errors` will be included in a CMS page when redirecting via `Redirect::withErrors($validator)`.
+  - Added new utility command for compiling back-end assets `october:util compile [assets|js|less]`.
+
+* **Build 174** (2015-01-05)
+  - Improved asset caching (`cms.enableAssetCache`), when enabled the server will send a *304 Not Modified* header.
+  - Introduced new *Table* widget and *DataTable* form widget.
+  - There is now a simpler way for sending mail via `Mail::sendTo()`.
+  - The List Filter query can now be extended with controller override `listFilterExtendQuery()`.
+
 * **Build 171** (2014-12-17)
   - Add new methods `propertyName()` and `paramName()` to Component base class for accessing names of external properties.
 

@@ -1,7 +1,6 @@
 <?php namespace Backend\Classes;
 
 use Str;
-use HTML;
 use Lang;
 use IteratorAggregate;
 use ArrayIterator;
@@ -97,6 +96,26 @@ class FormTabs implements IteratorAggregate, ArrayAccess
         }
 
         $this->fields[$tab][$name] = $field;
+    }
+
+    /**
+     * Remove a field from all tabs by name.
+     * @param string    $name
+     * @return boolean
+     */
+    public function removeField($name)
+    {
+        foreach ($this->fields as $tab => $fields) {
+            foreach ($fields as $fieldName => $field) {
+                if ($fieldName == $name) {
+                    unset($this->fields[$tab][$fieldName]);
+
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 
     /**

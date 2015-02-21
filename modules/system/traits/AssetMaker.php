@@ -1,11 +1,11 @@
 <?php namespace System\Traits;
 
-use HTML;
+use Url;
+use Html;
 use File;
-use Request;
 use System\Models\Parameters;
 use System\Models\PluginVersion;
-use System\Classes\SystemException;
+use SystemException;
 
 /**
  * Asset Maker Trait
@@ -49,7 +49,7 @@ trait AssetMaker
                 /*
                  * Prevent duplicates
                  */
-                $attributes = HTML::attributes(array_merge(
+                $attributes = Html::attributes(array_merge(
                     [
                         'rel'  => 'stylesheet',
                         'href' => $this->getAssetEntryBuildPath($asset)
@@ -63,7 +63,7 @@ trait AssetMaker
 
         if ($type == null || $type == 'rss') {
             foreach ($this->assets['rss'] as $asset) {
-                $attributes = HTML::attributes(array_merge(
+                $attributes = Html::attributes(array_merge(
                     [
                         'rel'   => 'alternate',
                         'href'  => $this->getAssetEntryBuildPath($asset),
@@ -79,7 +79,7 @@ trait AssetMaker
 
         if ($type == null || $type == 'js') {
             foreach ($this->assets['js'] as $asset) {
-                $attributes = HTML::attributes(array_merge(
+                $attributes = Html::attributes(array_merge(
                     [
                         'src' => $this->getAssetEntryBuildPath($asset)
                     ],
@@ -195,7 +195,7 @@ trait AssetMaker
      * a forward slash, it will be returned in context of the application public path,
      * otherwise it will be returned in context of the asset path.
      * @param string $fileName File to load.
-     * @param mixed $assetPath Explicitly define an asset path.
+     * @param string $assetPath Explicitly define an asset path.
      * @return string Relative path to the asset file.
      */
     public function getAssetPath($fileName, $assetPath = null)
@@ -212,18 +212,7 @@ trait AssetMaker
             return $fileName;
         }
 
-        if (!is_array($assetPath)) {
-            $assetPath = [$assetPath];
-        }
-
-        foreach ($assetPath as $path) {
-            $_fileName = $path . '/' . $fileName;
-            if (File::isFile(PATH_BASE . '/' . $_fileName)) {
-                break;
-            }
-        }
-
-        return $_fileName;
+        return $assetPath . '/' . $fileName;
     }
 
     /**
@@ -271,7 +260,7 @@ trait AssetMaker
         }
 
         if (substr($asset, 0, 1) == '/') {
-            $asset = Request::getBasePath() . $asset;
+            $asset = Url::asset($asset);
         }
 
         return $asset;

@@ -15,6 +15,7 @@ use October\Rain\Database\Relations\AttachMany;
 use October\Rain\Database\Relations\AttachOne;
 use October\Rain\Database\Relations\HasManyThrough;
 use October\Rain\Database\ModelException;
+use October\Rain\Database\QueryBuilder;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use InvalidArgumentException;
 use Exception;
@@ -257,7 +258,7 @@ class Model extends EloquentModel
      * @param  array  $attributes
      * @return \Illuminate\Database\Eloquent\Model|static
      */
-    public function newFromBuilder($attributes = [])
+    public function newFromBuilder($attributes = [], $connection = null)
     {
         $instance = $this->newInstance([], true);
         if ($instance->fireModelEvent('fetching') === false)
@@ -266,6 +267,8 @@ class Model extends EloquentModel
         $instance->setRawAttributes((array) $attributes, true);
 
         $instance->fireModelEvent('fetched', false);
+
+        $instance->setConnection($connection ?: $this->connection);
 
         return $instance;
     }
@@ -319,6 +322,20 @@ class Model extends EloquentModel
     public function newEloquentBuilder($query)
     {
         return new Builder($query);
+    }
+
+    /**
+     * Get a new query builder instance for the connection.
+     *
+     * @return \Illuminate\Database\Query\Builder
+     */
+    protected function newBaseQueryBuilder()
+    {
+        $conn = $this->getConnection();
+
+        $grammar = $conn->getQueryGrammar();
+
+        return new QueryBuilder($conn, $grammar, $conn->getPostProcessor());
     }
 
     //
@@ -455,31 +472,16 @@ class Model extends EloquentModel
             case 'hasOne':
             case 'hasMany':
                 $relation = $this->validateRelationArgs($relationName, ['key', 'otherKey']);
-
-                // @deprecated Remove if year >= 2016
-                $relation['key'] = array_get($relation, 'primaryKey', array_get($relation, 'key'));
-                $relation['otherKey'] = array_get($relation, 'localKey', array_get($relation, 'otherKey'));
-
                 $relationObj = $this->$relationType($relation[0], $relation['key'], $relation['otherKey'], $relationName);
                 break;
 
             case 'belongsTo':
                 $relation = $this->validateRelationArgs($relationName, ['key', 'otherKey']);
-
-                // @deprecated Remove if year >= 2016
-                $relation['key'] = array_get($relation, 'foreignKey', array_get($relation, 'key'));
-                $relation['otherKey'] = array_get($relation, 'parentKey', array_get($relation, 'otherKey'));
-
                 $relationObj = $this->$relationType($relation[0], $relation['key'], $relation['otherKey'], $relationName);
                 break;
 
             case 'belongsToMany':
                 $relation = $this->validateRelationArgs($relationName, ['table', 'key', 'otherKey', 'pivot', 'timestamps']);
-
-                // @deprecated Remove if year >= 2016
-                $relation['key'] = array_get($relation, 'primaryKey', array_get($relation, 'key'));
-                $relation['otherKey'] = array_get($relation, 'foreignKey', array_get($relation, 'otherKey'));
-
                 $relationObj = $this->$relationType($relation[0], $relation['table'], $relation['key'], $relation['otherKey'], $relationName);
                 break;
 
@@ -491,49 +493,27 @@ class Model extends EloquentModel
             case 'morphOne':
             case 'morphMany':
                 $relation = $this->validateRelationArgs($relationName, ['type', 'id', 'key'], ['name']);
-
-                // @deprecated Remove if year >= 2016
-                $relation['key'] = array_get($relation, 'localKey', array_get($relation, 'key'));
-
                 $relationObj = $this->$relationType($relation[0], $relation['name'], $relation['type'], $relation['id'], $relation['key'], $relationName);
                 break;
 
             case 'morphToMany':
                 $relation = $this->validateRelationArgs($relationName, ['table', 'key', 'otherKey', 'pivot', 'timestamps'], ['name']);
-
-                // @deprecated Remove if year >= 2016
-                $relation['key'] = array_get($relation, 'primaryKey', array_get($relation, 'key'));
-                $relation['otherKey'] = array_get($relation, 'foreignKey', array_get($relation, 'otherKey'));
-
                 $relationObj = $this->$relationType($relation[0], $relation['name'], $relation['table'], $relation['key'], $relation['otherKey'], false, $relationName);
                 break;
 
             case 'morphedByMany':
                 $relation = $this->validateRelationArgs($relationName, ['table', 'key', 'otherKey', 'pivot', 'timestamps'], ['name']);
-
-                // @deprecated Remove if year >= 2016
-                $relation['key'] = array_get($relation, 'primaryKey', array_get($relation, 'key'));
-                $relation['otherKey'] = array_get($relation, 'foreignKey', array_get($relation, 'otherKey'));
-
                 $relationObj = $this->$relationType($relation[0], $relation['name'], $relation['table'], $relation['key'], $relation['otherKey'], $relationName);
                 break;
 
             case 'attachOne':
             case 'attachMany':
                 $relation = $this->validateRelationArgs($relationName, ['public', 'key']);
-
-                // @deprecated Remove if year >= 2016
-                $relation['key'] = array_get($relation, 'localKey', array_get($relation, 'key'));
-
                 $relationObj = $this->$relationType($relation[0], $relation['public'], $relation['key'], $relationName);
                 break;
 
             case 'hasManyThrough':
                 $relation = $this->validateRelationArgs($relationName, ['key', 'throughKey'], ['through']);
-
-                // @deprecated Remove if year >= 2016
-                $relation['key'] = array_get($relation, 'primaryKey', array_get($relation, 'key'));
-
                 $relationObj = $this->$relationType($relation[0], $relation['through'], $relation['key'], $relation['throughKey']);
                 break;
 
@@ -872,26 +852,8 @@ class Model extends EloquentModel
 
         switch ($relationType) {
             case 'attachOne':
-                $file = $this->sessionKey
-                    ? $relationObj->withDeferred($this->sessionKey)->first()
-                    : $this->$relationName;
-
-                if ($file) {
-                    $value = $file->getPath();
-                }
-                break;
-
             case 'attachMany':
-                $files = $this->sessionKey
-                    ? $relationObj->withDeferred($this->sessionKey)->get()
-                    : $this->$relationName;
-
-                if ($files) {
-                    $value = [];
-                    $files->each(function($file) use (&$value){
-                        $value[] = $file->getPath();
-                    });
-                }
+                $value = $relationObj->getSimpleValue();
                 break;
 
             case 'belongsTo':
@@ -966,26 +928,6 @@ class Model extends EloquentModel
                     $this->setAttribute($relationObj->getForeignKey(), $value);
                 break;
 
-            case 'attachMany':
-                if ($value instanceof UploadedFile) {
-                    $this->bindEventOnce('model.afterSave', function() use ($relationObj, $value){
-                        $relationObj->create(['data' => $value]);
-                    });
-                }
-                elseif (is_array($value)) {
-                    $files = [];
-                    foreach ($value as $_value) {
-                        if ($_value instanceof UploadedFile)
-                            $files[] = $_value;
-                    }
-                    $this->bindEventOnce('model.afterSave', function() use ($relationObj, $files){
-                        foreach ($files as $file) {
-                            $relationObj->create(['data' => $file]);
-                        }
-                    });
-                }
-                break;
-
             case 'hasOne':
                 if (!$value || is_array($value))
                     return;
@@ -1007,14 +949,8 @@ class Model extends EloquentModel
                 break;
 
             case 'attachOne':
-                if (is_array($value))
-                    $value = reset($value);
-
-                if ($value instanceof UploadedFile) {
-                    $this->bindEventOnce('model.afterSave', function() use ($relationObj, $value){
-                        $relationObj->create(['data' => $value]);
-                    });
-                }
+            case 'attachMany':
+                $relationObj->setSimpleValue($value);
                 break;
         }
     }
@@ -1109,6 +1045,22 @@ class Model extends EloquentModel
     public function alwaysPush($sessionKey)
     {
         return $this->push($sessionKey, ['always' => true]);
+    }
+
+    //
+    // Adders
+    //
+
+    /**
+     * Adds a datetime attribute to convert to an instance of Carbon/DateTime object.
+     * @param string   $attribute
+     * @return void
+     */
+    public function addDateAttribute($attribute)
+    {
+        if (in_array($this->dates, $attribute)) return;
+
+        $this->dates[] = $attribute;
     }
 
     //

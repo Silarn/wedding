@@ -95,6 +95,10 @@ label {
 .form-group {
     position: relative;
 
+    &:empty {
+        display: none;
+    }
+
     &, &.layout-item {
         padding-bottom: 20px;
         margin-bottom: 0;
@@ -146,11 +150,14 @@ label {
         margin-top: -5px;
     }
 
-    &.no-padding, // @deprecated remove if year >= 2015
     &.field-slim {
         &.span-left, &.span-right {
             width: 50%;
         }
+    }
+
+    &.field-indent {
+        padding-left: 23px;
     }
 
     &.input-sidebar-control {
@@ -191,6 +198,29 @@ label {
     &.before-field {
         margin-top: 0;
         margin-bottom: 10px;
+    }
+}
+
+.input-with-icon {
+    position: relative;
+
+    > .icon {
+        position: absolute;
+        z-index: 2;
+        padding: 13px;
+        pointer-events: none;
+        color: @color-form-field-icon;
+        font-size: 15px;
+    }
+
+    &.right-align {
+        > .icon { right: 0; }
+        input { padding-right: 32px !important; }
+    }
+
+    &.left-align {
+        > .icon { left: 0; }
+        input { padding-left: 32px !important; }
     }
 }
 
@@ -526,7 +556,7 @@ label {
 
         &.in-progress {
             .select2-choice .select2-arrow {
-                display: none!important;
+                display: none !important;
             }
         }
     }

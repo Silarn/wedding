@@ -21,12 +21,13 @@ return [
         'ru' => 'Orosz',
         'se' => 'Svéd',
         'tr' => 'Török',
+        'pl' => 'Lengyel',
     ],
     'directory' => [
-        'create_fail' => "Nem hozható létre a könyvtár: :name",
+        'create_fail' => 'Nem hozható létre a könyvtár: :name',
     ],
     'file' => [
-        'create_fail' => "Nem hozható létre a fájl: :name",
+        'create_fail' => 'Nem hozható létre a fájl: :name',
     ],
     'combiner' => [
         'not_found' => "A(z) ':name' egyesítőfájl nem található.",
@@ -66,13 +67,13 @@ return [
         'disabled_help' => 'A letiltott bővítményeket az alkalmazás figelmen kívül hagyja.',
         'selected_amount' => 'Kijelölt bővítmények: :amount',
         'remove_confirm' => 'Biztos benne?',
-        'remove_success' => "Ezek a bővítmények sikeresen eltávolításra kerültek a rendszerből.",
+        'remove_success' => 'Ezek a bővítmények sikeresen eltávolításra kerültek a rendszerből.',
         'refresh_confirm' => 'Biztos benne?',
-        'refresh_success' => "Ezek a bővítmények sikeresen frissítésre kerültek a rendszerben.",
+        'refresh_success' => 'Ezek a bővítmények sikeresen frissítésre kerültek a rendszerben.',
         'disable_confirm' => 'Biztos benne?',
-        'disable_success' => "Ezek a bővítmények sikeresen letiltásra kerültek.",
-        'enable_success' => "Ezek a bővítmények sikeresen engedélyezésre kerültek.",
-        'unknown_plugin' => "A bővítmények eltávolítása megtörtént a fájlrendszerből.",
+        'disable_success' => 'Ezek a bővítmények sikeresen letiltásra kerültek.',
+        'enable_success' => 'Ezek a bővítmények sikeresen engedélyezésre kerültek.',
+        'unknown_plugin' => 'A bővítmények eltávolítása megtörtént a fájlrendszerből.',
     ],
     'project' => [
         'name' => 'Projekt',
@@ -121,7 +122,10 @@ return [
         'mailgun_domain' => 'Mailgun tartomány',
         'mailgun_domain_comment' => 'Adja meg a Mailgun tartománynevét.',
         'mailgun_secret' => 'Mailgun Secret',
-        'mailgun_domain_secret' => 'Adja meg Mailgun API-kulcsát.',
+        'mailgun_secret_comment' => 'Adja meg Mailgun API-kulcsát.',
+        'mandrill' => 'Mandrill',
+        'mandrill_secret' => 'Mandrill Secret',
+        'mandrill_secret_comment' => 'Adja meg Mandrill API-kulcsát.'
     ],
     'mail_templates' => [
         'menu_label' => 'Levélsablonok',
@@ -248,6 +252,7 @@ return [
         'manage_system_settings' => 'Rendszerbeállítások kezelése',
         'manage_software_updates' => 'Szoftverfrissítések kezelése',
         'manage_mail_templates' => 'Levélsablonok kezelése',
+        'manage_mail_settings' => 'Levelezési beállítások kezelése',
         'manage_other_administrators' => 'Másik adminisztrátorok kezelése',
         'view_the_dashboard' => 'Az irányítópult megtekintése'
     ]

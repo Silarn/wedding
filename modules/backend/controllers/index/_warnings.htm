@@ -1,20 +1,17 @@
 <?php
 
-$themesDir = Config::get('cms.themesDir');
-$uploadsDir = Config::get('cms.uploadsDir');
-
 $warnings = [];
 $writablePaths = [
-    $themesDir,
-    $uploadsDir,
-    $uploadsDir.'/public',
-    $uploadsDir.'/protected',
-    '/app/storage',
-    '/app/storage/logs',
-    '/app/storage/cache',
-    '/app/storage/twig',
-    '/app/storage/meta',
-    '/app/storage/combiner',
+    temp_path(),
+    themes_path(),
+    base_path().'/storage',
+    base_path().'/storage/app',
+    base_path().'/storage/logs',
+    base_path().'/storage/framework',
+    base_path().'/storage/cms',
+    base_path().'/storage/cms/cache',
+    base_path().'/storage/cms/twig',
+    base_path().'/storage/cms/combiner',
 ];
 $requiredExtensions = [
     'GD' => extension_loaded('gd'),
@@ -25,7 +22,7 @@ $requiredExtensions = [
 ];
 
 foreach ($writablePaths as $path) {
-    if (!is_writable(PATH_BASE.$path))
+    if (!is_writable($path))
         $warnings[] = Lang::get('backend::lang.warnings.permissions', ['name' => '<strong>'.$path.'</strong>']);
 }
 foreach ($requiredExtensions as $extension => $installed) {

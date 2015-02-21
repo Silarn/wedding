@@ -1,5 +1,6 @@
 <?php namespace October\Rain\Database\Attach;
 
+use Storage;
 use File as FileHelper;
 use October\Rain\Database\Model;
 use October\Rain\Database\Attach\FileException;
@@ -183,7 +184,7 @@ class File extends Model
         if (!$fileName)
             $fileName = $this->disk_name;
 
-        return FileHelper::get($this->getStorageDirectory() . $this->getPartitionDirectory() . $fileName);
+        return Storage::get($this->getStorageDirectory() . $this->getPartitionDirectory() . $fileName);
     }
 
     /**
@@ -226,10 +227,12 @@ class File extends Model
          * Process and purge the data attribute
          */
         if ($this->isDirty('data')) {
-            if ($this->data instanceof UploadedFile)
+            if ($this->data instanceof UploadedFile) {
                 $this->fromPost($this->data);
-            else
+            }
+            else {
                 $this->fromFile($this->data);
+            }
 
             unset($this->data);
         }
@@ -241,19 +244,8 @@ class File extends Model
      */
     public function afterDelete()
     {
-        $this->deleteFile($this->disk_name);
-
-        /*
-         * Delete thumbs
-         */
-        $pattern = $this->getStorageDirectory() . $this->getPartitionDirectory() . 'thumb_'.$this->id.'_*';
-        $thumbs = FileHelper::glob($pattern);
-
-        if (is_array($thumbs)) {
-            foreach ($thumbs as $thumb) {
-                $this->deleteFile(basename($thumb));
-            }
-        }
+        $this->deleteThumbs();
+        $this->deleteFile();
     }
 
     //
@@ -273,10 +265,6 @@ class File extends Model
      */
     public function getThumb($width, $height, $options = [])
     {
-        // @todo See: https://github.com/octobercms/october/issues/181
-        // if (!$this->hasFile($this->getDiskPath()))
-        //     return '';
-
         if (!$this->isImage())
             return $this->getPath();
 
@@ -290,29 +278,65 @@ class File extends Model
             'extension' => 'jpg',
         ];
 
-        if (!is_array($options))
+        if (!is_array($options)) {
             $options = ['mode' => $options];
+        }
 
         $options = array_merge($defaultOptions, $options);
 
-        $thumbExt = strtolower($options['extension']);
+        if (($thumbExt = strtolower($options['extension'])) == 'auto') {
+            $thumbExt = $this->getExtension();
+        }
+
         $thumbMode = strtolower($options['mode']);
         $thumbOffset = $options['offset'];
         $thumbFile = 'thumb_' . $this->id . '_' . $width . 'x' . $height . '_' . $thumbOffset[0] . '_' . $thumbOffset[1] . '_' . $thumbMode . '.' . $thumbExt;
         $thumbPath = $this->getStorageDirectory() . $this->getPartitionDirectory() . $thumbFile;
         $thumbPublic = $this->getPublicDirectory() . $this->getPartitionDirectory() . $thumbFile;
 
-        if ($this->hasFile($thumbFile))
+        if ($this->hasFile($thumbFile)) {
             return $thumbPublic;
+        }
 
+        /*
+         * Set up some working files
+         */
+        $tempFile = $this->getLocalTempPath();
+        $tempThumb = $this->getLocalTempPath($thumbFile);
+
+        /*
+         * Handle a broken source image
+         */
+        if (!$this->hasFile($this->disk_name)) {
+            BrokenImage::copyTo($tempThumb);
+        }
         /*
          * Generate thumbnail
          */
-        $resizer = Resizer::open($this->getDiskPath());
-        $resizer->resize($width, $height, $options['mode'], $options['offset']);
-        $resizer->save($thumbPath, $options['quality']);
+        else {
+            $this->copyStorageToLocal($this->getDiskPath(), $tempFile);
+            $resizer = Resizer::open($tempFile);
+            $resizer->resize($width, $height, $options['mode'], $options['offset']);
+            $resizer->save($tempThumb, $options['quality']);
+            FileHelper::delete($tempFile);
+        }
+
+        /*
+         * Publish to storage and clean up
+         */
+        $this->copyLocalToStorage($tempThumb, $thumbPath);
+        FileHelper::delete($tempThumb);
 
         return $thumbPublic;
+    }
+
+    protected function getLocalTempPath($path = null)
+    {
+        if (!$path) {
+            return $this->getTempDirectory() . '/' . md5($this->getDiskPath()) . '.' . $this->getExtension();
+        }
+
+        return $this->getTempDirectory() . '/' . $path;
     }
 
     //
@@ -320,9 +344,25 @@ class File extends Model
     //
 
     /**
+     * Copy the Storage to local file
+     */
+    protected function copyStorageToLocal($storagePath, $localPath)
+    {
+        return FileHelper::put($localPath, Storage::get($storagePath));
+    }
+
+    /**
+     * Copy the local file to Storage
+     */
+    protected function copyLocalToStorage($localPath, $storagePath)
+    {
+        return Storage::put($storagePath, FileHelper::get($localPath));
+    }
+
+    /**
      * Saves a file
-     * @param string $sourcePath An absolute path to a file name to read from.
-     * @param string $destinationFileName A file name without a path to save to.
+     * @param string $sourcePath An absolute local path to a file name to read from.
+     * @param string $destinationFileName A storage file name to save to.
      */
     protected function putFile($sourcePath, $destinationFileName = null)
     {
@@ -331,10 +371,7 @@ class File extends Model
 
         $destinationPath = $this->getStorageDirectory() . $this->getPartitionDirectory();
 
-        if (!FileHelper::isDirectory($destinationPath))
-            FileHelper::makeDirectory($destinationPath, 0777, true);
-
-        return FileHelper::copy($sourcePath, $destinationPath . $destinationFileName);
+        return $this->copyLocalToStorage($sourcePath, $destinationPath . $destinationFileName);
     }
 
     /**
@@ -346,8 +383,11 @@ class File extends Model
             $fileName = $this->disk_name;
 
         $directory = $this->getStorageDirectory() . $this->getPartitionDirectory();
+        $filePath = $directory . $fileName;
 
-        FileHelper::delete($directory . $fileName);
+        if (Storage::exists($filePath)) {
+            Storage::delete($filePath);
+        }
 
         $this->deleteEmptyDirectory($directory);
     }
@@ -358,7 +398,7 @@ class File extends Model
     protected function hasFile($fileName = null)
     {
         $filePath = $this->getStorageDirectory() . $this->getPartitionDirectory() . $fileName;
-        return FileHelper::exists($filePath);
+        return Storage::exists($filePath);
     }
 
     /**
@@ -370,36 +410,50 @@ class File extends Model
         if (!$this->isDirectoryEmpty($dir))
             return;
 
-        FileHelper::deleteDirectory($dir);
+        Storage::deleteDirectory($dir);
 
         $dir = dirname($dir);
         if (!$this->isDirectoryEmpty($dir))
             return;
 
-        FileHelper::deleteDirectory($dir);
+        Storage::deleteDirectory($dir);
 
         $dir = dirname($dir);
         if (!$this->isDirectoryEmpty($dir))
             return;
 
-        FileHelper::deleteDirectory($dir);
+        Storage::deleteDirectory($dir);
     }
 
     /**
      * Returns true if a directory contains no files.
      */
-    protected function isDirectoryEmpty($dir = null)
+    protected function isDirectoryEmpty($dir)
     {
-        if (!is_readable($dir))
-            return false;
+        if (!$dir) return null;
 
-        $handle = opendir($dir);
-        while (false !== ($entry = readdir($handle))) {
-            if ($entry != "." && $entry != "..")
-                return false;
+        return count(Storage::allFiles($dir)) === 0;
+    }
+
+    /*
+     * Delete all thumbnails for this file.
+     */
+    protected function deleteThumbs()
+    {
+        $pattern = 'thumb_'.$this->id.'_';
+
+        $directory = $this->getStorageDirectory() . $this->getPartitionDirectory();
+        $allFiles = Storage::files($directory);
+        $collection = [];
+        foreach ($allFiles as $file) {
+            if (starts_with(basename($file), $pattern)) {
+                $collection[] = $file;
+            }
         }
 
-        return true;
+        if (!empty($collection)) {
+            Storage::delete($collection);
+        }
     }
 
     //
@@ -419,14 +473,16 @@ class File extends Model
     }
 
     /**
-     * Define the storage path, override this method to define.
+     * Define the internal storage path, override this method to define.
      */
     public function getStorageDirectory()
     {
-        if ($this->isPublic())
-            return '/public/';
-        else
-            return '/protected/';
+        if ($this->isPublic()) {
+            return 'uploads/public/';
+        }
+        else {
+            return 'uploads/protected/';
+        }
     }
 
     /**
@@ -434,11 +490,26 @@ class File extends Model
      */
     public function getPublicDirectory()
     {
-        /* @todo Hardcoded, duh */
-        if ($this->isPublic())
+        if ($this->isPublic()) {
             return 'http://localhost/uploads/public/';
-        else
+        }
+        else {
             return 'http://localhost/uploads/protected/';
+        }
+    }
+
+    /**
+     * Define the internal working path, override this method to define.
+     */
+    public function getTempDirectory()
+    {
+        $path = temp_path() . '/uploads';
+
+        if (!FileHelper::isDirectory($path)) {
+            FileHelper::makeDirectory($path, 0777, true, true);
+        }
+
+        return $path;
     }
 
 }

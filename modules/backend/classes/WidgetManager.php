@@ -2,8 +2,8 @@
 
 use Str;
 use File;
+use Yaml;
 use Closure;
-use October\Rain\Support\Yaml;
 use Illuminate\Container\Container;
 use System\Classes\PluginManager;
 
@@ -103,11 +103,6 @@ class WidgetManager
     public function registerFormWidget($className, $widgetInfo = null)
     {
         $widgetCode = isset($widgetInfo['code']) ? $widgetInfo['code'] : null;
-
-        /* @todo Remove line if year >= 2015 */
-        if (!$widgetCode) {
-            $widgetCode = isset($widgetInfo['alias']) ? $widgetInfo['alias'] : null;
-        }
 
         if (!$widgetCode) {
             $widgetCode = Str::getClassId($className);

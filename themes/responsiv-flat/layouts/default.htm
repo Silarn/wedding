@@ -9,7 +9,7 @@ description = "Default layout"
         <link rel="icon" type="image/png" href="{{ 'assets/images/logo.png'|theme }}" />
         {% styles %}
         <link href="{{ [
-            'assets/css/theme.css'
+            'assets/css/theme.css', 'assets/css/custom.css'
         ]|theme }}" rel="stylesheet">
     </head>
     <body class="page-{{ this.page.id }} layout-{{ this.layout.id }}">
@@ -47,6 +47,8 @@ description = "Default layout"
             'assets/vendor/flat-ui/js/flatui-radio.js',
             'assets/vendor/flat-ui/js/jquery.tagsinput.js',
             'assets/vendor/flat-ui/js/jquery.placeholder.js',
+            'assets/javascript/jquery.scrollTo.min.js',
+            'assets/javascript/skrollr.min.js',
             'assets/javascript/app.js',
         ]|theme }}"></script>
         {% framework extras %}

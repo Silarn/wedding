@@ -11,11 +11,10 @@ use BackendMenu;
 use Backend\Classes\Controller;
 use System\Models\Parameters;
 use System\Models\PluginVersion;
-use System\Console\CacheClear;
 use System\Classes\UpdateManager;
 use System\Classes\PluginManager;
 use System\Classes\SettingsManager;
-use System\Classes\ApplicationException;
+use ApplicationException;
 use Exception;
 
 /**
@@ -131,12 +130,12 @@ class Updates extends Controller
             case 'completeUpdate':
                 $manager->update();
                 Flash::success(Lang::get('system::lang.updates.update_success'));
-                return Redirect::to(Backend::url('system/updates'));
+                return Backend::redirect('system/updates');
 
             case 'completeInstall':
                 $manager->update();
                 Flash::success(Lang::get('system::lang.install.install_success'));
-                return Redirect::to(Backend::url('system/updates'));
+                return Backend::redirect('system/updates');
         }
     }
 
@@ -389,7 +388,7 @@ class Updates extends Controller
         ]);
 
         Flash::success(Lang::get('system::lang.project.unbind_success'));
-        return Redirect::to(Backend::url('system/updates'));
+        return Backend::redirect('system/updates');
     }
 
     //
@@ -545,6 +544,6 @@ class Updates extends Controller
             Flash::success(Lang::get('system::lang.plugins.enable_success'));
         }
 
-        return Redirect::to(Backend::url('system/updates/manage'));
+        return Backend::redirect('system/updates/manage');
     }
 }

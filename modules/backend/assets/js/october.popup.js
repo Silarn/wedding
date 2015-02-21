@@ -79,7 +79,8 @@
         handler: null,
         keyboard: true,
         extraData: {},
-        content: null
+        content: null,
+        size: null
     }
 
     Popup.prototype.init = function(){
@@ -163,6 +164,9 @@
             }),
             modalDialog = $('<div />').addClass('modal-dialog'),
             modalContent = $('<div />').addClass('modal-content')
+
+        if (this.options.size)
+            modalDialog.addClass('size-' + this.options.size)
 
         return modal.append(modalDialog.append(modalContent))
     }
@@ -309,14 +313,20 @@
         return false
     });
 
+    /*
+     * Only use the popup loading indicator if the handlers are an exact match.
+     */
     $(document)
-        .on('ajaxPromise', '[data-popup-load-indicator]', function() {
+        .on('ajaxPromise', '[data-popup-load-indicator]', function(event, context) {
+            if ($(this).data('request') != context.handler) return
             $(this).closest('.control-popup').removeClass('in').popup('setLoading', true)
         })
-        .on('ajaxFail', '[data-popup-load-indicator]', function() {
+        .on('ajaxFail', '[data-popup-load-indicator]', function(event, context) {
+            if ($(this).data('request') != context.handler) return
             $(this).closest('.control-popup').addClass('in').popup('setLoading', false)
         })
-        .on('ajaxDone', '[data-popup-load-indicator]', function() {
+        .on('ajaxDone', '[data-popup-load-indicator]', function(event, context) {
+            if ($(this).data('request') != context.handler) return
             $(this).closest('.control-popup').popup('hideLoading')
         })
 

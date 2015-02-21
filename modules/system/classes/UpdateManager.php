@@ -10,8 +10,8 @@ use Config;
 use Carbon\Carbon;
 use System\Models\Parameters;
 use System\Models\PluginVersion;
-use System\Console\CacheClear;
-use System\Classes\ApplicationException;
+use ApplicationException;
+use System\Helpers\Cache as CacheHelper;
 use October\Rain\Filesystem\Zip;
 use Exception;
 
@@ -77,8 +77,8 @@ class UpdateManager
         $this->versionManager = VersionManager::instance();
         $this->migrator = App::make('migrator');
         $this->repository = App::make('migration.repository');
-        $this->tempDirectory = Config::get('cms.tempDir', sys_get_temp_dir());
-        $this->baseDirectory = PATH_BASE;
+        $this->tempDirectory = temp_path();
+        $this->baseDirectory = base_path();
         $this->disableCoreUpdates = Config::get('cms.disableCoreUpdates', false);
 
         /*
@@ -118,7 +118,7 @@ class UpdateManager
         }
 
         Parameters::set('system::update.count', 0);
-        CacheClear::fireInternal();
+        CacheHelper::clear();
 
         /*
          * Seed modules
@@ -185,10 +185,12 @@ class UpdateManager
         $installed = PluginVersion::all();
         $versions = $installed->lists('version', 'code');
         $names = $installed->lists('name', 'code');
+        $build = Parameters::get('system::core.build');
 
         $params = [
             'core' => $this->getHash(),
             'plugins' => serialize($versions),
+            'build' => $build,
             'force' => $force
         ];
 
@@ -279,7 +281,7 @@ class UpdateManager
          */
         $modules = Config::get('cms.loadModules', []);
         foreach ($modules as $module) {
-            $path = PATH_BASE . '/modules/'.strtolower($module).'/database/migrations';
+            $path = base_path() . '/modules/'.strtolower($module).'/database/migrations';
             $this->migrator->requireFiles($path, $this->migrator->getMigrationFiles($path));
         }
 
@@ -323,7 +325,7 @@ class UpdateManager
      */
     public function migrateModule($module)
     {
-        $this->migrator->run(PATH_BASE . '/modules/'.strtolower($module).'/database/migrations');
+        $this->migrator->run(base_path() . '/modules/'.strtolower($module).'/database/migrations');
 
         $this->note($module);
         foreach ($this->migrator->getNotes() as $note) {
@@ -684,6 +686,9 @@ class UpdateManager
     protected function applyHttpAttributes($http, $postData)
     {
         $postData['url'] = base64_encode(URL::to('/'));
+        if (Config::get('cms.edgeUpdates', false)) {
+            $postData['edge'] = 1;
+        }
 
         if ($this->key && $this->secret) {
             $postData['nonce'] = $this->createNonce();

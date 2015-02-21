@@ -48,7 +48,7 @@ class Users extends Controller
     {
         // Users cannot edit themselves, only use My Settings
         if ($context != 'myaccount' && $recordId == $this->user->id) {
-            return Redirect::to(Backend::url('backend/users/myaccount'));
+            return Backend::redirect('backend/users/myaccount');
         }
 
         return $this->asExtension('FormController')->update($recordId, $context);
@@ -108,8 +108,8 @@ class Users extends Controller
                     -1 => 'backend::lang.user.deny',
                 ],
                 'attributes' => [
+                    'data-trigger-action' => 'disable',
                     'data-trigger' => "input[name='User[permissions][superuser]']",
-                    'data-trigger-type' => 'disable',
                     'data-trigger-condition' => 'checked',
                 ],
                 'span' => 'auto',

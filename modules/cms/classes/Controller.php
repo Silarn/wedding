@@ -14,7 +14,6 @@ use Response;
 use Exception;
 use BackendAuth;
 use Twig_Environment;
-use Controller as BaseController;
 use Cms\Twig\Loader as TwigLoader;
 use Cms\Twig\DebugExtension;
 use Cms\Twig\Extension as CmsTwigExtension;
@@ -23,9 +22,10 @@ use Cms\Models\MaintenanceSettings;
 use System\Models\RequestLog;
 use System\Classes\ErrorHandler;
 use System\Classes\CombineAssets;
-use System\Classes\ApplicationException;
 use System\Twig\Extension as SystemTwigExtension;
-use October\Rain\Support\ValidationException;
+use October\Rain\Exception\SystemException;
+use October\Rain\Exception\ValidationException;
+use October\Rain\Exception\ApplicationException;
 use Illuminate\Http\RedirectResponse;
 
 /**
@@ -35,7 +35,7 @@ use Illuminate\Http\RedirectResponse;
  * @package october\cms
  * @author Alexey Bobkov, Samuel Georges
  */
-class Controller extends BaseController
+class Controller
 {
     use \System\Traits\AssetMaker;
     use \October\Rain\Support\Traits\Emitter;
@@ -122,7 +122,7 @@ class Controller extends BaseController
             throw new CmsException(Lang::get('cms::lang.theme.active.not_found'));
         }
 
-        $this->assetPath = Config::get('cms.themesDir').'/'.$this->theme->getDirName();
+        $this->assetPath = Config::get('cms.themesPath', '/themes').'/'.$this->theme->getDirName();
         $this->router = new Router($this->theme);
         $this->initTwigEnvironment();
 
@@ -329,6 +329,16 @@ class Controller extends BaseController
         $result = $template->render($this->vars);
         CmsException::unmask();
 
+        /*
+         * Extensibility
+         */
+        if (
+            ($event = $this->fireEvent('page.display', [$url, $page, $result], true)) ||
+            ($event = Event::fire('cms.page.display', [$this, $url, $page, $result], true))
+        ) {
+            return $event;
+        }
+
         if (!is_string($result)) {
             return $result;
         }
@@ -352,7 +362,7 @@ class Controller extends BaseController
             'debug' => $isDebugMode,
         ];
         if (!Config::get('cms.twigNoCache')) {
-            $options['cache'] =  storage_path().'/twig';
+            $options['cache'] =  storage_path().'/cms/twig';
         }
 
         $this->twig = new Twig_Environment($this->loader, $options);
@@ -408,6 +418,12 @@ class Controller extends BaseController
 
             $this->addComponent($name, $alias, $properties);
         }
+
+        /*
+         * Extensibility
+         */
+        $this->fireEvent('page.initComponents', [$this->page, $this->layout]);
+        Event::fire('cms.page.initComponents', [$this, $this->page, $this->layout]);
     }
 
     /**
@@ -441,7 +457,6 @@ class Controller extends BaseController
 
         $this->setComponentPropertiesFromParams($componentObj);
         $componentObj->init();
-        $componentObj->onInit(); // Deprecated: Remove ithis line if year >= 2015
         return $componentObj;
     }
 
@@ -522,7 +537,7 @@ class Controller extends BaseController
                 return Response::make($responseContents, 406);
             }
             catch (Exception $ex) {
-                return Response::make(ApplicationException::getDetailedMessage($ex), 500);
+                throw $ex;
             }
         }
 
@@ -748,7 +763,6 @@ class Controller extends BaseController
                 $partial = ComponentPartial::loadCached($componentObj, $partialName);
             }
 
-
             if ($partial === null) {
                 if ($throwException) {
                     throw new CmsException(Lang::get('cms::lang.partial.not_found', ['name'=>$name]));
@@ -810,7 +824,6 @@ class Controller extends BaseController
 
                 $this->setComponentPropertiesFromParams($componentObj, $parameters);
                 $componentObj->init();
-                $componentObj->onInit(); // Deprecated: Remove ithis line if year >= 2015
             }
 
             CmsException::mask($this->page, 300);
@@ -955,6 +968,17 @@ class Controller extends BaseController
     }
 
     /**
+     * Returns the CMS page object being processed by the controller.
+     * The object is not available on the early stages of the controller
+     * initialization.
+     * @return \Cms\Classes\Page Returns the Page object or null.
+     */
+    public function getPage()
+    {
+        return $this->page;
+    }
+
+    /**
      * Intended to be called from the page, returns the layout code base object.
      * @return \Cms\Classes\CodeBase
      */
@@ -1018,17 +1042,17 @@ class Controller extends BaseController
      */
     public function themeUrl($url = null)
     {
-        $themePath = Config::get('cms.themesDir').'/'.$this->getTheme()->getDirName();
+        $themeDir = $this->getTheme()->getDirName();
 
         if (is_array($url)) {
-            $_url = Request::getBaseUrl();
-            $_url .= CombineAssets::combine($url, $themePath);
+            $_url = URL::to(CombineAssets::combine($url, themes_path().'/'.$themeDir));
         }
         else {
-            $_url = Request::getBasePath().$themePath;
+            $_url = Config::get('cms.themesPath', '/themes').'/'.$themeDir;
             if ($url !== null) {
                 $_url .= '/'.$url;
             }
+            $_url = URL::asset($_url);
         }
 
         return $_url;
@@ -1060,8 +1084,9 @@ class Controller extends BaseController
         }
 
         foreach ($this->partialComponentStack as $componentInfo) {
-            if ($componentInfo['name'] == $name)
+            if ($componentInfo['name'] == $name) {
                 return $componentInfo['obj'];
+            }
         }
 
         return null;
@@ -1147,9 +1172,9 @@ class Controller extends BaseController
                 $paramName = trim($matches[1]);
 
                 if (substr($paramName, 0, 1) == ':') {
-                    $paramName = substr($paramName, 1);
-                    $newPropertyValue = array_key_exists($paramName, $routerParameters)
-                        ? $routerParameters[$paramName]
+                    $routeParamName = substr($paramName, 1);
+                    $newPropertyValue = array_key_exists($routeParamName, $routerParameters)
+                        ? $routerParameters[$routeParamName]
                         : null;
 
                 }
@@ -1163,5 +1188,51 @@ class Controller extends BaseController
                 $component->setExternalPropertyName($propertyName, $paramName);
             }
         }
+    }
+
+    //
+    // Keep Laravel Happy
+    //
+
+    /**
+     * Get the middleware assigned to the controller.
+     *
+     * @return array
+     */
+    public function getMiddleware()
+    {
+        return [];
+    }
+
+    /**
+     * Get the registered "before" filters.
+     *
+     * @return array
+     */
+    public function getBeforeFilters()
+    {
+        return [];
+    }
+
+    /**
+     * Get the registered "after" filters.
+     *
+     * @return array
+     */
+    public function getAfterFilters()
+    {
+        return [];
+    }
+
+    /**
+     * Execute an action on the controller.
+     *
+     * @param  string  $method
+     * @param  array   $parameters
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
+    public function callAction($method, $parameters)
+    {
+        return call_user_func_array(array($this, $method), $parameters);
     }
 }

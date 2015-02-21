@@ -36,6 +36,15 @@
                 href="{{ link.sublinks ? '#' : (link.page ?: link[0]) }}"
                 {% if link.sublinks %}data-toggle="dropdown"{% endif %}
                 class="{{ link.sublinks ? 'dropdown-toggle' }}"
+                {% if not link.sublinks %}onclick="$.scrollTo('{{ link.page ?: link[0] }}', 1000, {offset: {top:-53}, onAfter: function() {
+                    
+                    var target = $('{{ link.page ?: link[0] }}')[0];
+                    var original_id = target.id;
+                    target.id = null;
+                    location.hash = '{{ link.page ?: link[0] }}';
+                    target.id = original_id;
+
+                }}); return false;"{% endif %}
             >
                 {{ link.name ?: link[1] }}
                 {% if link.sublinks %}<span class="caret"></span>{% endif %}

@@ -1,29 +1,25 @@
 <?php
 
-class TestCase extends Illuminate\Foundation\Testing\TestCase 
+class TestCase extends Illuminate\Foundation\Testing\TestCase
 {
 
     /**
      * Creates the application.
      *
-     * @return Symfony\Component\HttpKernel\HttpKernelInterface
+     * @return \Illuminate\Foundation\Application
      */
     public function createApplication()
     {
-        $unitTesting = true;
+        $app = require __DIR__.'/../bootstrap/app.php';
+        $app->make('Illuminate\Contracts\Console\Kernel')->bootstrap();
 
-        $testEnvironment = 'testing';
+        $app['cache']->setDefaultDriver('array');
 
-        $result = require __DIR__.'/../bootstrap/start.php';
+        $app->setLocale('en');
+        $app->setPluginsPath(base_path().'/tests/fixtures/plugins');
+        $app->setThemesPath(base_path().'/tests/fixtures/themes');
 
-        /*
-         * Use the array driver during the unit testing
-         */
-        Config::set('cache.driver', 'array');
-
-        App::setLocale('en');
-
-        return $result;
+        return $app;
     }
 
 }

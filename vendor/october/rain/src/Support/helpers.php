@@ -23,9 +23,8 @@ if (!function_exists('input'))
         /*
          * Array field name, eg: field[key][key2][key3]
          */
-        $keyParts = October\Rain\Support\Str::evalHtmlArray($name);
-        $dottedName = implode('.', $keyParts);
-        return Input::get($dottedName, $default);
+        $name = implode('.', Str::evalHtmlArray($name));
+        return Input::get($name, $default);
     }
 }
 
@@ -36,18 +35,14 @@ if (!function_exists('post'))
      */
     function post($name = null, $default = null)
     {
-        // Remove this line if year >= 2015 (Laravel 5 upgrade)
-        return input($name, $default);
-
         if ($name === null)
             return $_POST;
 
         /*
          * Array field name, eg: field[key][key2][key3]
          */
-        $keyParts = October\Rain\Support\Str::evalHtmlArray($name);
-        $dottedName = implode('.', $keyParts);
-        return array_get($_POST, $dottedName, $default);
+        $name = implode('.', Str::evalHtmlArray($name));
+        return array_get($_POST, $name, $default);
     }
 }
 
@@ -65,9 +60,8 @@ if (!function_exists('get'))
         /*
          * Array field name, eg: field[key][key2][key3]
          */
-        $keyParts = October\Rain\Support\Str::evalHtmlArray($name);
-        $dottedName = implode('.', $keyParts);
-        return array_get($_GET, $dottedName, $default);
+        $name = implode('.', Str::evalHtmlArray($name));
+        return array_get($_GET, $name, $default);
     }
 }
 
@@ -98,8 +92,9 @@ if (!function_exists('traceSql'))
      */
     function traceSql()
     {
-        Event::listen('illuminate.query', function($query, $bindings, $time, $name)
-        {
+        define('OCTOBER_NO_EVENT_LOGGING', 1);
+
+        Event::listen('illuminate.query', function($query, $bindings, $time, $name) {
             $data = compact('bindings', 'time', 'name');
 
             foreach ($bindings as $i => $binding){
@@ -116,5 +111,78 @@ if (!function_exists('traceSql'))
 
             traceLog($query);
         });
+    }
+}
+
+if (!function_exists('plugins_path'))
+{
+    /**
+     * Get the path to the plugins folder.
+     *
+     * @param  string  $path
+     * @return string
+     */
+    function plugins_path($path = '')
+    {
+        return app('path.plugins').($path ? '/'.$path : $path);
+    }
+}
+
+if (!function_exists('uploads_path'))
+{
+    /**
+     * Get the path to the uploads folder.
+     *
+     * @param  string  $path
+     * @return string
+     */
+    function uploads_path($path = '')
+    {
+        return app('path.uploads').($path ? '/'.$path : $path);
+    }
+}
+
+if (!function_exists('themes_path'))
+{
+    /**
+     * Get the path to the themes folder.
+     *
+     * @param  string  $path
+     * @return string
+     */
+    function themes_path($path = '')
+    {
+        return app('path.themes').($path ? '/'.$path : $path);
+    }
+}
+
+if (!function_exists('temp_path'))
+{
+    /**
+     * Get the path to the temporary storage folder.
+     *
+     * @param  string  $path
+     * @return string
+     */
+    function temp_path($path = '')
+    {
+        return app('path.temp').($path ? '/'.$path : $path);
+    }
+}
+
+if (!function_exists('trans'))
+{
+    /**
+     * Translate the given message.
+     *
+     * @param  string  $id
+     * @param  array   $parameters
+     * @param  string  $domain
+     * @param  string  $locale
+     * @return string
+     */
+    function trans($id = null, $parameters = array(), $domain = 'messages', $locale = null)
+    {
+        return app('translator')->trans($id, $parameters, $domain, $locale);
     }
 }

@@ -2,7 +2,7 @@
 
 use Lang;
 use Backend\Classes\FormWidgetBase;
-use System\Classes\SystemException;
+use SystemException;
 use Illuminate\Database\Eloquent\Relations\Relation as RelationBase;
 
 /**
@@ -61,15 +61,6 @@ class Relation extends FormWidgetBase
         $this->descriptionFrom = $this->getConfig('descriptionFrom', $this->descriptionFrom);
         $this->emptyOption = $this->getConfig('emptyOption');
 
-        /* @todo Remove lines if year >= 2015 */
-        if ($this->getConfig('nameColumn')) {
-            $this->nameFrom = $this->getConfig('nameColumn');
-        }
-        /* @todo Remove lines if year >= 2015 */
-        if ($this->getConfig('descriptionColumn')) {
-            $this->descriptionFrom = $this->getConfig('descriptionColumn');
-        }
-
         if (!$this->model->hasRelation($this->relationName)) {
             throw new SystemException(Lang::get(
                 'backend::lang.model.missing_relation',
@@ -113,8 +104,9 @@ class Relation extends FormWidgetBase
             }
             elseif (in_array($this->relationType, ['belongsTo', 'hasOne'])) {
                 $field->type = 'dropdown';
-                $field->placeholder = $this->emptyOption;
             }
+
+            $field->placeholder = $this->emptyOption;
 
             // It is safe to assume that if the model and related model are of
             // the exact same class, then it cannot be related to itself

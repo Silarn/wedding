@@ -39,38 +39,10 @@ class ServiceProvider extends ModuleServiceProvider
         parent::register('system');
 
         /*
-         * Register core providers
-         */
-        App::register('October\Rain\Config\ConfigServiceProvider');
-        App::register('October\Rain\Translation\TranslationServiceProvider');
-
-        /*
-         * Define path constants
-         */
-        if (!defined('PATH_APP')) {
-            define('PATH_APP', app_path());
-        }
-        if (!defined('PATH_BASE')) {
-            define('PATH_BASE', base_path());
-        }
-        if (!defined('PATH_PUBLIC')) {
-            define('PATH_PUBLIC', public_path());
-        }
-        if (!defined('PATH_STORAGE')) {
-            define('PATH_STORAGE', storage_path());
-        }
-        if (!defined('PATH_PLUGINS')) {
-            define('PATH_PLUGINS', base_path() . Config::get('cms.pluginsDir', '/plugins'));
-        }
-
-        /*
          * Register singletons
          */
-        App::singleton('string', function () {
-            return new \October\Rain\Support\Str;
-        });
         App::singleton('backend.helper', function () {
-            return new \Backend\Classes\BackendHelper;
+            return new \Backend\Helpers\Backend;
         });
         App::singleton('backend.menu', function () {
             return \Backend\Classes\NavigationManager::instance();
@@ -101,28 +73,37 @@ class ServiceProvider extends ModuleServiceProvider
         $pluginManager->registerAll();
 
         /*
+         * Allow plugins to use the scheduler
+         */
+        Event::listen('console.schedule', function($schedule) use ($pluginManager) {
+            foreach ($pluginManager->getPlugins() as $plugin) {
+                if (method_exists($plugin, 'registerSchedule')) {
+                    $plugin->registerSchedule($schedule);
+                }
+            }
+        });
+
+        /*
          * Error handling for uncaught Exceptions
          */
-        App::error(function (\Exception $exception, $httpCode) {
+        Event::listen('exception.beforeRender', function ($exception, $httpCode, $request){
             $handler = new ErrorHandler;
-            return $handler->handleException($exception, $httpCode);
+            return $handler->handleException($exception);
         });
 
         /*
          * Write all log events to the database
          */
         Event::listen('illuminate.log', function ($level, $message, $context) {
-            if (!DbDongle::hasDatabase()) {
-                return;
+            if (DbDongle::hasDatabase() && !defined('OCTOBER_NO_EVENT_LOGGING')) {
+                EventLog::add($message, $level);
             }
-
-            EventLog::add($message, $level);
         });
 
         /*
          * Register basic Twig
          */
-        App::bindShared('twig', function ($app) {
+        App::singleton('twig', function ($app) {
             $twig = new Twig_Environment(new TwigLoader(), ['auto_reload' => true]);
             $twig->addExtension(new TwigExtension);
             return $twig;
@@ -138,7 +119,7 @@ class ServiceProvider extends ModuleServiceProvider
         /*
          * Register Twig that will parse strings
          */
-        App::bindShared('twig.string', function ($app) {
+        App::singleton('twig.string', function ($app) {
             $twig = $app['twig'];
             $twig->setLoader(new Twig_Loader_String);
             return $twig;
@@ -156,7 +137,7 @@ class ServiceProvider extends ModuleServiceProvider
         /*
          * Override standard Mailer content with template
          */
-        Event::listen('mailer.beforeAddContent', function ($mailer, $message, $view, $plain, $data) {
+        Event::listen('mailer.beforeAddContent', function ($mailer, $message, $view, $data) {
             if (MailTemplate::addContentToMailer($message, $view, $data)) {
                 return false;
             }
@@ -213,7 +194,7 @@ class ServiceProvider extends ModuleServiceProvider
                 'system.manage_mail_templates' => [
                     'label' => 'system::lang.permissions.manage_mail_templates',
                     'tab' => 'system::lang.permissions.name'
-                ],
+                ]
             ]);
         });
 
@@ -242,7 +223,7 @@ class ServiceProvider extends ModuleServiceProvider
                 'url_*'          => ['URL', '*'],
                 'html_*'         => ['HTML', '*'],
                 'form_*'         => ['Form', '*'],
-                'form_macro'     => ['Form', '__call'],
+                'form_macro'     => ['Form', '__call']
             ]);
 
             $manager->registerFilters([
@@ -256,7 +237,7 @@ class ServiceProvider extends ModuleServiceProvider
                 'studly'         => ['Str', 'studly'],
                 'trans'          => ['Lang', 'get'],
                 'transchoice'    => ['Lang', 'choice'],
-                'md'             => ['October\Rain\Support\Markdown', 'parse'],
+                'md'             => ['Markdown', 'parse'],
             ]);
         });
 
@@ -308,7 +289,7 @@ class ServiceProvider extends ModuleServiceProvider
                     'icon'        => 'icon-envelope',
                     'class'       => 'System\Models\MailSettings',
                     'permissions' => ['system.manage_mail_settings'],
-                    'order'       => 400,
+                    'order'       => 400
                 ],
                 'mail_templates' => [
                     'label'       => 'system::lang.mail_templates.menu_label',
@@ -317,9 +298,16 @@ class ServiceProvider extends ModuleServiceProvider
                     'icon'        => 'icon-envelope-square',
                     'url'         => Backend::url('system/mailtemplates'),
                     'permissions' => ['system.manage_mail_templates'],
-                    'order'       => 500,
-                ],
+                    'order'       => 500
+                ]
             ]);
+        });
+
+        /*
+         * Add CMS based cache clearing to native command
+         */
+        Event::listen('cache:cleared', function() {
+            \System\Helpers\Cache::clear();
         });
 
         /*
@@ -334,19 +322,12 @@ class ServiceProvider extends ModuleServiceProvider
         $this->registerConsoleCommand('plugin.refresh', 'System\Console\PluginRefresh');
 
         /*
-         * Override clear cache command
-         */
-        App::bindShared('command.cache.clear', function ($app) {
-            return new \System\Console\CacheClear($app['cache'], $app['files']);
-        });
-
-        /*
          * Register the sidebar for the System main menu
          */
         BackendMenu::registerContextSidenavPartial(
             'October.System',
             'system',
-            '@/modules/system/partials/_system_sidebar.htm'
+            '~/modules/system/partials/_system_sidebar.htm'
         );
     }
 

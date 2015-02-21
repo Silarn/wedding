@@ -1,11 +1,10 @@
 <?php namespace Backend\Widgets;
 
-use DB as Db;
+use Db;
 use Event;
 use Backend\Classes\WidgetBase;
 use Backend\Classes\FilterScope;
-use System\Classes\ApplicationException;
-use October\Rain\Support\Util;
+use ApplicationException;
 
 /**
  * Filter Widget
@@ -126,7 +125,7 @@ class Filter extends WidgetBase
         $params = func_get_args();
         $result = $this->fireEvent('filter.update', [$params]);
         if ($result && is_array($result)) {
-            return Util::arrayMerge($result);
+            return call_user_func_array('array_merge', $result);
         }
     }
 

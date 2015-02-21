@@ -3,13 +3,14 @@
 use URL;
 use Flash;
 use Block;
+use Event;
 use Twig_Extension;
 use Twig_TokenParser;
 use Twig_SimpleFilter;
 use Twig_SimpleFunction;
 use Cms\Classes\Controller;
 use Cms\Classes\CmsException;
-use System\Classes\ApplicationException;
+use ApplicationException;
 
 /**
  * The CMS Twig extension class implements the basic CMS Twig functions and filters.
@@ -203,6 +204,9 @@ class Extension extends Twig_Extension
         if (($result = Block::placeholder($name)) === null) {
             return $default;
         }
+
+        if ($event = Event::fire('cms.block.render', [$name, $result], true))
+            $result = $event;
 
         $result = str_replace('<!-- X_OCTOBER_DEFAULT_BLOCK_CONTENT -->', trim($default), $result);
         return $result;

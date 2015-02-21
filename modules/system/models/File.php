@@ -22,30 +22,21 @@ class File extends FileBase
     //
 
     /**
-     * Define the storage path, override this method to define.
-     */
-    public function getStorageDirectory()
-    {
-        $uploadsDir = Config::get('cms.uploadsDir');
-        if ($this->isPublic()) {
-            return base_path() . $uploadsDir . '/public/';
-        }
-        else {
-            return base_path() . $uploadsDir . '/protected/';
-        }
-    }
-
-    /**
      * Define the public address for the storage path.
      */
     public function getPublicDirectory()
     {
-        $uploadsDir = Config::get('cms.uploadsDir');
+        $uploadsPath = Config::get('cms.uploadsPath', '/storage/app/uploads');
+
+        if (!preg_match("/(\/\/|http|https)/", $uploadsPath)) {
+            $uploadsPath = Request::getBasePath() . $uploadsPath;
+        }
+
         if ($this->isPublic()) {
-            return Request::getBasePath() . $uploadsDir . '/public/';
+            return $uploadsPath . '/public/';
         }
         else {
-            return Request::getBasePath() . $uploadsDir . '/protected/';
+            return $uploadsPath . '/protected/';
         }
     }
 }

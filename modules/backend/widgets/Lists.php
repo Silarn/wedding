@@ -1,6 +1,6 @@
 <?php namespace Backend\Widgets;
 
-use DB as Db;
+use Db;
 use HTML as Html;
 use App;
 use Lang;
@@ -12,7 +12,7 @@ use Carbon\Carbon;
 use October\Rain\Router\Helper as RouterHelper;
 use Backend\Classes\ListColumn;
 use Backend\Classes\WidgetBase;
-use System\Classes\ApplicationException;
+use ApplicationException;
 use October\Rain\Database\Model;
 use DateTime;
 
@@ -69,6 +69,11 @@ class Lists extends WidgetBase
      * @var int Maximum rows to display for each page.
      */
     public $recordsPerPage;
+
+    /**
+     * @var int Current page number.
+     */
+    protected $currentPageNumber;
 
     /**
      * @var string Message to display when there are no records in the list.
@@ -190,7 +195,7 @@ class Lists extends WidgetBase
     public function prepareVars()
     {
         $this->vars['cssClasses'] = implode(' ', $this->cssClasses);
-        $this->vars['columns'] = $this->getVisibleListColumns();
+        $this->vars['columns'] = $this->getVisibleColumns();
         $this->vars['columnTotal'] = $this->getTotalColumns();
         $this->vars['records'] = $this->getRecords();
         $this->vars['noRecordsMessage'] = trans($this->noRecordsMessage);
@@ -204,11 +209,11 @@ class Lists extends WidgetBase
         $this->vars['treeLevel'] = 0;
 
         if ($this->showPagination) {
-            $this->vars['recordTotal'] = $this->records->getTotal();
-            $this->vars['pageCurrent'] = $this->records->getCurrentPage();
-            $this->vars['pageLast'] = $this->records->getLastPage();
-            $this->vars['pageFrom'] = $this->records->getFrom();
-            $this->vars['pageTo'] = $this->records->getTo();
+            $this->vars['recordTotal'] = $this->records->total();
+            $this->vars['pageCurrent'] = $this->records->currentPage();
+            $this->vars['pageLast'] = $this->records->lastPage();
+            $this->vars['pageFrom'] = $this->records->firstItem();
+            $this->vars['pageTo'] = $this->records->lastItem();
         }
         else {
             $this->vars['recordTotal'] = $this->records->count();
@@ -230,7 +235,7 @@ class Lists extends WidgetBase
      */
     public function onPaginate()
     {
-        App::make('paginator')->setCurrentPage(post('page'));
+        $this->currentPageNumber = post('page');
         return $this->onRefresh();
     }
 
@@ -323,7 +328,7 @@ class Lists extends WidgetBase
         /*
          * Prepare related eager loads (withs) and custom selects (joins)
          */
-        foreach ($this->getVisibleListColumns() as $column) {
+        foreach ($this->getVisibleColumns() as $column) {
 
             if (!$this->isColumnRelated($column) || (!isset($column->sqlSelect) && !isset($column->valueFrom))) {
                 continue;
@@ -365,7 +370,7 @@ class Lists extends WidgetBase
         /*
          * Custom select queries
          */
-        foreach ($this->getVisibleListColumns() as $column) {
+        foreach ($this->getVisibleColumns() as $column) {
             if (!isset($column->sqlSelect)) {
                 continue;
             }
@@ -456,7 +461,7 @@ class Lists extends WidgetBase
         else {
             $model = $this->prepareModel();
             $records = ($this->showPagination)
-                ? $model->paginate($this->recordsPerPage)
+                ? $model->paginate($this->recordsPerPage, $this->currentPageNumber)
                 : $model->get();
 
         }
@@ -522,7 +527,7 @@ class Lists extends WidgetBase
     /**
      * Returns the list columns that are visible by list settings or default
      */
-    protected function getVisibleListColumns()
+    public function getVisibleColumns()
     {
         $definitions = $this->defineListColumns();
         $columns = [];
@@ -544,7 +549,8 @@ class Lists extends WidgetBase
                 ));
             }
 
-            foreach ($this->columnOverride as $columnName) {
+            $availableColumns = array_intersect($this->columnOverride, array_keys($definitions));
+            foreach ($availableColumns as $columnName) {
                 $definitions[$columnName]->invisible = false;
                 $columns[$columnName] = $definitions[$columnName];
             }
@@ -644,7 +650,7 @@ class Lists extends WidgetBase
      */
     protected function getTotalColumns()
     {
-        $columns = $this->visibleColumns ?: $this->getVisibleListColumns();
+        $columns = $this->visibleColumns ?: $this->getVisibleColumns();
         $total = count($columns);
         if ($this->showCheckboxes) {
             $total++;
@@ -958,7 +964,7 @@ class Lists extends WidgetBase
             /*
              * Persist the page number
              */
-            App::make('paginator')->setCurrentPage(post('page'));
+            $this->currentPageNumber = post('page');
 
             return $this->onRefresh();
         }
@@ -1004,7 +1010,7 @@ class Lists extends WidgetBase
          * First available column
          */
         if ($this->sortColumn === null || !$this->isSortable($this->sortColumn)) {
-            $columns = $this->visibleColumns ?: $this->getVisibleListColumns();
+            $columns = $this->visibleColumns ?: $this->getVisibleColumns();
             $columns = array_filter($columns, function($column){ return $column->sortable; });
             $this->sortColumn = key($columns);
             $this->sortDirection = 'desc';
@@ -1100,7 +1106,7 @@ class Lists extends WidgetBase
             $column->invisible = true;
         }
 
-        return array_merge($columns, $this->getVisibleListColumns());
+        return array_merge($columns, $this->getVisibleColumns());
     }
 
     //

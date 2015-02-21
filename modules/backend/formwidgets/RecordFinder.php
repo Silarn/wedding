@@ -2,7 +2,7 @@
 
 use Lang;
 use Backend\Classes\FormWidgetBase;
-use System\Classes\SystemException;
+use SystemException;
 
 /**
  * Record Finder
@@ -11,7 +11,7 @@ use System\Classes\SystemException;
  *    user:
  *        label: User
  *        type: recordfinder
- *        list: @/plugins/rainlab/user/models/user/columns.yaml
+ *        list: ~/plugins/rainlab/user/models/user/columns.yaml
  *        prompt: Click the Find button to find a user
  *        nameFrom: name
  *        descriptionFrom: email
@@ -84,18 +84,9 @@ class RecordFinder extends FormWidgetBase
         $this->nameFrom = $this->getConfig('nameFrom', $this->nameFrom);
         $this->descriptionFrom = $this->getConfig('descriptionFrom', $this->descriptionFrom);
 
-        /* @todo Remove lines if year >= 2015 */
-        if ($this->getConfig('nameColumn')) {
-            $this->nameFrom = $this->getConfig('nameColumn');
-        }
-        /* @todo Remove lines if year >= 2015 */
-        if ($this->getConfig('descriptionColumn')) {
-            $this->descriptionFrom = $this->getConfig('descriptionColumn');
-        }
-
         if (!$this->model->hasRelation($this->relationName)) {
             throw new SystemException(Lang::get('backend::lang.model.missing_relation', [
-                'class' => get_class($this->controller),
+                'class' => get_class($this->model),
                 'relation' => $this->relationName
             ]));
         }

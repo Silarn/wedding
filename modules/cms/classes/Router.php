@@ -5,7 +5,7 @@ use File;
 use Cache;
 use Config;
 use Event;
-use System\Classes\SystemException;
+use SystemException;
 use October\Rain\Router\Router as RainRouter;
 use October\Rain\Router\Helper as RouterHelper;
 
@@ -84,9 +84,10 @@ class Router
             $urlList = [];
 
             $cacheable = Config::get('cms.enableRoutesCache') && in_array(
-                Config::get('cache.driver'),
+                Cache::getDefaultDriver(),
                 ['apc', 'memcached', 'redis', 'array']
             );
+
             if ($cacheable) {
                 $fileName = $this->getCachedUrlFileName($url, $urlList);
             }

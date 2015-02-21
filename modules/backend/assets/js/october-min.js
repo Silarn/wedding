@@ -67,12 +67,13 @@ if($.oc===undefined)
 $.oc={}
 $.oc.escapeHtmlString=function(string){var htmlEscapes={'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#x27;','/':'&#x2F;'},htmlEscaper=/[&<>"'\/]/g
 return(''+string).replace(htmlEscaper,function(match){return htmlEscapes[match];})}
-+function($){"use strict";var TriggerOn=function(element,options){var $el=this.$el=$(element);this.options=options||{};if(this.options.triggerCondition===false)
++function($){"use strict";var TriggerOn=function(element,options){var $el=this.$el=$(element);this.options=options||{};if(this.options.triggerType!==false&&this.options.triggerAction===false)this.options.triggerAction=this.options.triggerType
+if(this.options.triggerCondition===false)
 throw new Error('Trigger condition is not specified.')
 if(this.options.trigger===false)
 throw new Error('Trigger selector is not specified.')
-if(this.options.triggerType===false)
-throw new Error('Trigger type is not specified.')
+if(this.options.triggerAction===false)
+throw new Error('Trigger action is not specified.')
 this.triggerCondition=this.options.triggerCondition
 if(this.options.triggerCondition.indexOf('value')==0){var match=this.options.triggerCondition.match(/[^[\]]+(?=])/g)
 if(match){this.triggerConditionValue=match
@@ -85,23 +86,23 @@ self.onConditionChanged()})
 self.onConditionChanged()}
 TriggerOn.prototype.onConditionChanged=function(){if(this.triggerCondition=='checked'){this.updateTarget($(this.options.trigger+':checked').length>0)}
 else if(this.triggerCondition=='value'){this.updateTarget($(this.options.trigger).val()==this.triggerConditionValue)}}
-TriggerOn.prototype.updateTarget=function(status){if(this.options.triggerType=='display')
+TriggerOn.prototype.updateTarget=function(status){if(this.options.triggerAction=='show')
 this.$el.toggleClass('hide',!status).trigger('hide',[!status])
-else if(this.options.triggerType=='hide')
+else if(this.options.triggerAction=='hide')
 this.$el.toggleClass('hide',status).trigger('hide',[status])
-else if(this.options.triggerType=='enable')
+else if(this.options.triggerAction=='enable')
 this.$el.prop('disabled',!status).trigger('disable',[!status]).toggleClass('control-disabled',!status)
-else if(this.options.triggerType=='disable')
+else if(this.options.triggerAction=='disable')
 this.$el.prop('disabled',status).trigger('disable',[status]).toggleClass('control-disabled',status)
-else if(this.options.triggerType=='empty'&&status)
+else if(this.options.triggerAction=='empty'&&status)
 this.$el.trigger('empty').val('')
-if(this.options.triggerType=='display'||this.options.triggerType=='hide')
+if(this.options.triggerAction=='show'||this.options.triggerAction=='hide')
 this.fixButtonClasses()
 $(window).trigger('resize')}
 TriggerOn.prototype.fixButtonClasses=function(){var group=this.$el.closest('.btn-group')
 if(group.length>0&&this.$el.is(':last-child'))
 this.$el.prev().toggleClass('last',this.$el.hasClass('hide'))}
-TriggerOn.DEFAULTS={triggerCondition:false,trigger:false,triggerType:false}
+TriggerOn.DEFAULTS={triggerAction:false,triggerCondition:false,trigger:false}
 var old=$.fn.triggerOn
 $.fn.triggerOn=function(option){return this.each(function(){var $this=$(this)
 var data=$this.data('oc.triggerOn')
@@ -110,7 +111,7 @@ if(!data)$this.data('oc.triggerOn',(data=new TriggerOn(this,options)))})}
 $.fn.triggerOn.Constructor=TriggerOn
 $.fn.triggerOn.noConflict=function(){$.fn.triggerOn=old
 return this}
-$(document).ready(function(){$('[data-trigger]').triggerOn()})}(window.jQuery);+function($){"use strict";var DragScroll=function(element,options){this.options=$.extend({},DragScroll.DEFAULTS,options)
+$(document).render(function(){$('[data-trigger]').triggerOn()})}(window.jQuery);+function($){"use strict";var DragScroll=function(element,options){this.options=$.extend({},DragScroll.DEFAULTS,options)
 var
 $el=$(element),el=$el.get(0),dragStart=0,startOffset=0,self=this,dragging=false,eventElementName=this.options.vertical?'pageY':'pageX';this.el=$el
 this.scrollClassContainer=this.options.scrollClassContainer?$(this.options.scrollClassContainer):$el
@@ -379,8 +380,7 @@ $link.text(processedTitle).attr('title',title)
 $pane.html(content)
 this.initTab($tab)
 this.updateClasses()}
-Tab.prototype.generateTitleText=function(title,tabIndex)
-{var newTitle=title
+Tab.prototype.generateTitleText=function(title,tabIndex){var newTitle=title
 if(this.options.titleAsFileNames)
 newTitle=title.replace(/^.*[\\\/]/,'')
 if(this.options.maxTitleSymbols&&newTitle.length>this.options.maxTitleSymbols)
@@ -622,7 +622,7 @@ this.$modal.on('shown.bs.modal',function(){self.triggerEvent('shown.oc.popup')})
 this.$modal.on('close.oc.popup',function(){self.hide()
 return false})
 this.init()}
-Popup.DEFAULTS={ajax:null,handler:null,keyboard:true,extraData:{},content:null}
+Popup.DEFAULTS={ajax:null,handler:null,keyboard:true,extraData:{},content:null,size:null}
 Popup.prototype.init=function(){var self=this
 if(self.isOpen)
 return
@@ -640,6 +640,8 @@ else if(this.options.content){var content=typeof this.options.content=='function
 this.setContent(content)}}
 Popup.prototype.createPopupContainer=function(){var
 modal=$('<div />').prop({class:'control-popup modal fade',role:'dialog',tabindex:-1}),modalDialog=$('<div />').addClass('modal-dialog'),modalContent=$('<div />').addClass('modal-content')
+if(this.options.size)
+modalDialog.addClass('size-'+this.options.size)
 return modal.append(modalDialog.append(modalContent))}
 Popup.prototype.setContent=function(contents){this.$content.html(contents)
 this.setLoading(false)
@@ -696,7 +698,10 @@ $.fn.popup.Constructor=Popup
 $.fn.popup.noConflict=function(){$.fn.popup=old
 return this}
 $(document).on('click.oc.popup','[data-control="popup"]',function(){$(this).popup()
-return false});$(document).on('ajaxPromise','[data-popup-load-indicator]',function(){$(this).closest('.control-popup').removeClass('in').popup('setLoading',true)}).on('ajaxFail','[data-popup-load-indicator]',function(){$(this).closest('.control-popup').addClass('in').popup('setLoading',false)}).on('ajaxDone','[data-popup-load-indicator]',function(){$(this).closest('.control-popup').popup('hideLoading')})}(window.jQuery);+function($){"use strict";var GoalMeter=function(element,options){var
+return false});$(document).on('ajaxPromise','[data-popup-load-indicator]',function(event,context){if($(this).data('request')!=context.handler)return
+$(this).closest('.control-popup').removeClass('in').popup('setLoading',true)}).on('ajaxFail','[data-popup-load-indicator]',function(event,context){if($(this).data('request')!=context.handler)return
+$(this).closest('.control-popup').addClass('in').popup('setLoading',false)}).on('ajaxDone','[data-popup-load-indicator]',function(event,context){if($(this).data('request')!=context.handler)return
+$(this).closest('.control-popup').popup('hideLoading')})}(window.jQuery);+function($){"use strict";var GoalMeter=function(element,options){var
 $el=this.$el=$(element),self=this;this.options=options||{};this.$indicatorBar=$('<span/>').text(this.options.value+'%')
 this.$indicatorOuter=$('<span/>').addClass('goal-meter-indicator').append(this.$indicatorBar)
 $('p',this.$el).first().before(this.$indicatorOuter)
@@ -1527,16 +1532,26 @@ Inspector.prototype.groupExpanded=function(title){var statuses=this.loadGroupExp
 if(statuses[title]!==undefined)
 return statuses[title]
 return false}
+Inspector.prototype.normalizePropertyCode=function(code){var lowerCaseCode=code.toLowerCase()
+for(var index in this.config){var propertyInfo=this.config[index]
+if(propertyInfo.property.toLowerCase()==lowerCaseCode)
+return propertyInfo.property}
+return code}
 Inspector.prototype.initProperties=function(){if(!this.propertyValuesField.length){var properties={},attributes=this.$el.get(0).attributes
 for(var i=0,len=attributes.length;i<len;i++){var attribute=attributes[i],matches=[]
-if(matches=attribute.name.match(/^data-property-(.*)$/))
-properties[matches[1]]=attribute.value}
+if(matches=attribute.name.match(/^data-property-(.*)$/)){properties[this.normalizePropertyCode(matches[1])]=attribute.value}}
 this.propertyValues=properties}else{var propertyValuesStr=$.trim(this.propertyValuesField.val())
 this.propertyValues=propertyValuesStr.length===0?{}:$.parseJSON(propertyValuesStr)}
 try{this.originalPropertyValues=$.extend(true,{},this.propertyValues)}catch(err){throw new Error('Error parsing the Inspector property values string. '+err)}}
 Inspector.prototype.readProperty=function(property,returnUndefined){if(this.propertyValues[property]!==undefined)
 return this.propertyValues[property]
 return returnUndefined?undefined:null}
+Inspector.prototype.getDefaultValue=function(property){for(var index in this.config){var propertyInfo=this.config[index]
+if(propertyInfo.itemType!=='property')
+continue
+if(propertyInfo.property==property)
+return propertyInfo.default}
+return undefined}
 Inspector.prototype.writeProperty=function(property,value,noChangedStatusUpdate){this.propertyValues[property]=value
 if(this.propertyValuesField.length)
 this.propertyValuesField.val(JSON.stringify(this.propertyValues))
@@ -1611,8 +1626,10 @@ $(document).on('focus',this.selector,function(){var $field=$(this)
 $('td',$field.closest('table')).removeClass('active')
 $field.closest('td').addClass('active')})
 $(document).on('change',this.selector,function(){self.applyValue()})}
-InspectorEditorString.prototype.init=function(){var value=$.trim(this.inspector.readProperty(this.fieldDef.property))
-$(this.selector).val(value)}
+InspectorEditorString.prototype.init=function(){var value=this.inspector.readProperty(this.fieldDef.property,true)
+if(value===undefined)
+value=this.inspector.getDefaultValue(this.fieldDef.property)
+$(this.selector).val($.trim(value))}
 InspectorEditorString.prototype.applyValue=function(){this.inspector.writeProperty(this.fieldDef.property,$.trim($(this.selector).val()))}
 InspectorEditorString.prototype.renderEditor=function(){var data={id:this.editorId,placeholder:this.fieldDef.placeholder!==undefined?this.fieldDef.placeholder:''}
 return Mustache.render('<td class="text" id="{{id}}"><input type="text" class="string-editor" placeholder="{{placeholder}}"/></td>',data)}
@@ -1636,7 +1653,7 @@ InspectorEditorCheckbox.prototype.applyValue=function(){this.inspector.writeProp
 InspectorEditorCheckbox.prototype.renderEditor=function(){var self=this,data={id:this.editorId,cbId:this.editorId+'-cb',title:this.fieldDef.title}
 return Mustache.render(this.getTemplate(),data)}
 InspectorEditorCheckbox.prototype.init=function(){var isChecked=this.inspector.readProperty(this.fieldDef.property,true)
-if(isChecked===undefined){if(this.fieldDef.placeholder!==undefined){isChecked=this.normalizeCheckedValue(this.fieldDef.placeholder)}}else{isChecked=this.normalizeCheckedValue(isChecked)}
+if(isChecked===undefined){if(this.fieldDef.default!==undefined){isChecked=this.normalizeCheckedValue(this.fieldDef.default)}}else{isChecked=this.normalizeCheckedValue(isChecked)}
 $(this.selector).prop('checked',isChecked)}
 InspectorEditorCheckbox.prototype.normalizeCheckedValue=function(value){if(value=='0'||value=='false')
 return false
@@ -1685,7 +1702,9 @@ InspectorEditorDropdown.prototype.getTemplate=function(){return'                
                 </select>                                           \
             </td>                                                   \
         ';}
-InspectorEditorDropdown.prototype.init=function(){var value=this.inspector.readProperty(this.fieldDef.property),self=this
+InspectorEditorDropdown.prototype.init=function(){var value=this.inspector.readProperty(this.fieldDef.property,true),self=this
+if(value===undefined)
+value=this.inspector.getDefaultValue(this.fieldDef.property)
 $(this.selector).attr('data-no-auto-update-on-render','true')
 $(this.selector).val(value)
 if(!Modernizr.touch){var options={dropdownCssClass:'ocInspectorDropdown'}
@@ -1710,7 +1729,12 @@ InspectorEditorDropdown.prototype.showLoadingIndicator=function(){if(!Modernizr.
 this.indicatorContainer.loadIndicator({'opaque':true})}
 InspectorEditorDropdown.prototype.hideLoadingIndicator=function(){if(!Modernizr.touch)
 this.indicatorContainer.loadIndicator('hide')}
-InspectorEditorDropdown.prototype.loadOptions=function(initialization){var $form=$(this.selector).closest('form'),data=this.inspector.propertyValues,$select=$(this.selector),currentValue=this.inspector.readProperty(this.fieldDef.property),self=this
+InspectorEditorDropdown.prototype.loadOptions=function(initialization){var $form=$(this.selector).closest('form'),data=this.inspector.propertyValues,$select=$(this.selector),currentValue=this.inspector.readProperty(this.fieldDef.property,true),self=this
+if(currentValue===undefined)
+currentValue=this.inspector.getDefaultValue(this.fieldDef.property)
+for(var index in this.inspector.config){var propertyInfo=this.inspector.config[index]
+if(propertyInfo.itemType=='property'){if(data[propertyInfo.property]===undefined)
+data[propertyInfo.property]=this.inspector.getDefaultValue(propertyInfo.property)}}
 if(this.fieldDef.depends)
 this.saveDependencyValues()
 data.inspectorProperty=this.fieldDef.property

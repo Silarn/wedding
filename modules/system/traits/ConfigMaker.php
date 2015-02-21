@@ -1,10 +1,10 @@
 <?php namespace System\Traits;
 
+use Yaml;
 use File;
 use Lang;
 use Event;
-use October\Rain\Support\Yaml;
-use System\Classes\SystemException;
+use SystemException;
 use Backend\Classes\Controller;
 use stdClass;
 

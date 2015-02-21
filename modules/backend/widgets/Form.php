@@ -10,7 +10,7 @@ use Backend\Classes\FormTabs;
 use Backend\Classes\FormField;
 use Backend\Classes\WidgetBase;
 use Backend\Classes\WidgetManager;
-use System\Classes\ApplicationException;
+use ApplicationException;
 use Backend\Classes\FormWidgetBase;
 use October\Rain\Database\Model;
 
@@ -245,6 +245,7 @@ class Form extends WidgetBase
     protected function prepareVars()
     {
         $this->defineFormFields();
+        $this->applyFiltersFromModel();
         $this->vars['sessionKey'] = $this->getSessionKey();
         $this->vars['outsideTabs'] = $this->outsideTabs;
         $this->vars['primaryTabs'] = $this->primaryTabs;
@@ -285,7 +286,7 @@ class Form extends WidgetBase
          */
         $eventResults = $this->fireEvent('form.beforeRefresh', [$saveData]) +
             Event::fire('backend.form.beforeRefresh', [$this, $saveData]);
-        
+
         foreach ($eventResults as $eventResult) {
             $saveData = $eventResult + $saveData;
         }
@@ -295,6 +296,12 @@ class Form extends WidgetBase
          */
         $this->setFormValues($saveData);
         $this->prepareVars();
+
+        /*
+         * Extensibility
+         */
+        $this->fireEvent('form.refreshFields', [$this->fields]);
+        Event::fire('backend.form.refreshFields', [$this, $this->fields]);
 
         /*
          * If an array of fields is supplied, update specified fields individually.
@@ -323,7 +330,7 @@ class Form extends WidgetBase
          */
         $eventResults = $this->fireEvent('form.refresh', [$result]) +
             Event::fire('backend.form.refresh', [$this, $result]);
-        
+
         foreach ($eventResults as $eventResult) {
             $result = $eventResult + $result;
         }
@@ -380,8 +387,8 @@ class Form extends WidgetBase
         /*
          * Extensibility
          */
-        Event::fire('backend.form.extendFields', [$this]);
-        $this->fireEvent('form.extendFields');
+        $this->fireEvent('form.extendFields', [$this->fields]);
+        Event::fire('backend.form.extendFields', [$this, $this->fields]);
 
         /*
          * Convert automatic spanned fields
@@ -497,6 +504,31 @@ class Form extends WidgetBase
     public function addSecondaryTabFields(array $fields)
     {
         return $this->addFields($fields, 'secondary');
+    }
+
+    /**
+     * Programatically remove a field.
+     * @return boolean
+     */
+    public function removeField($name)
+    {
+        if (!isset($this->fields[$name])) {
+            return false;
+        }
+
+        /*
+         * Remove from tabs
+         */
+        $this->primaryTabs->removeField($name);
+        $this->secondaryTabs->removeField($name);
+        $this->outsideTabs->removeField($name);
+
+        /*
+         * Remove from main collection
+         */
+        unset($this->fields[$name]);
+
+        return true;
     }
 
     /**
@@ -724,13 +756,13 @@ class Form extends WidgetBase
      */
     public function getFieldDepends($field)
     {
-        if (!$field->depends) {
+        if (!$field->dependsOn) {
             return;
         }
 
-        $depends = is_array($field->depends) ? $field->depends : [$field->depends];
-        $depends = htmlspecialchars(json_encode($depends), ENT_QUOTES, 'UTF-8');
-        return $depends;
+        $dependsOn = is_array($field->dependsOn) ? $field->dependsOn : [$field->dependsOn];
+        $dependsOn = htmlspecialchars(json_encode($dependsOn), ENT_QUOTES, 'UTF-8');
+        return $dependsOn;
     }
 
     /**
@@ -772,14 +804,6 @@ class Form extends WidgetBase
 
             $widgetValue = $widget->getSaveValue(array_get($data, $dotted));
 
-            /*
-             * @deprecated Remove if year >= 2016
-             */
-            if (method_exists($widget, 'getSaveData')) {
-                traceLog('Method getSaveData() is deprecated, use getSaveValue() instead. Found in: ' . get_class($widget), 'warning');
-                $widgetValue = $widget->getSaveData(array_get($data, $dotted));
-            }
-
             array_set($data, $dotted, $widgetValue);
         }
 
@@ -815,6 +839,16 @@ class Form extends WidgetBase
         }
 
         return $data;
+    }
+
+    /*
+     * Allow the model to filter fields.
+     */
+    protected function applyFiltersFromModel()
+    {
+        if (method_exists($this->model, 'filterFields')) {
+            $this->model->filterFields((object) $this->fields);
+        }
     }
 
     /**

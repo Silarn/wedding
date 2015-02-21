@@ -2,9 +2,9 @@
 
 use Str;
 use File;
-use DB as Db;
+use Yaml;
+use Db;
 use Carbon\Carbon;
-use October\Rain\Support\Yaml;
 use October\Rain\Database\Updater;
 
 /**

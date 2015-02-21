@@ -1,0 +1,31 @@
+body {
+    color: white;
+}
+
+#layout-content {
+    background: transparent;
+}
+
+#section-welcome {
+    background: url(../images/sections/1.jpg);
+    background-size: cover;
+    background-repeat: no-repeat;
+}
+
+#section-2 {
+    background: url(../images/sections/2.jpg);
+    background-size: cover;
+    background-repeat: no-repeat;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+    .navbar-nav > li > a {
+        font-size: 13px;
+        padding: 15px 19px;
+        line-height: 23px;
+    }
+    
+    header#layout-header .navbar-brand {
+        padding-left: 0px;
+    }
+}
