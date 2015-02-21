@@ -1,0 +1,13 @@
+# ===================================
+#  List Column Definitions
+# ===================================
+
+columns:
+
+    attribution:
+        label: Attribution
+        searchable: true
+
+    information:
+        label: Information
+        select: (SELECT group_concat(value SEPARATOR ', ') FROM wed_mohsin_txt_information WHERE human_id = wed_mohsin_txt_humans.id)
