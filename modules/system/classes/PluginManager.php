@@ -66,11 +66,21 @@ class PluginManager
      */
     protected function init()
     {
-        $this->app = App::make('app');
+        $this->bindContainerObjects();
         $this->metaFile = storage_path() . '/cms/disabled.json';
         $this->loadDisabled();
         $this->loadPlugins();
         $this->loadDependencies();
+    }
+
+    /**
+     * These objects are "soft singletons" and may be lost when
+     * the IoC container reboots. This provides a way to rebuild
+     * for the purposes of unit testing.
+     */
+    public function bindContainerObjects()
+    {
+        $this->app = App::make('app');
     }
 
     /**
@@ -161,10 +171,6 @@ class PluginManager
             return;
         }
 
-        if (!self::$noInit) {
-            $plugin->register();
-        }
-
         $pluginPath = $this->getPluginPath($plugin);
         $pluginNamespace = strtolower($pluginId);
 
@@ -174,6 +180,10 @@ class PluginManager
         $autoloadPath = $pluginPath . '/vendor/autoload.php';
         if (File::isFile($autoloadPath)) {
             require_once $autoloadPath;
+        }
+
+        if (!self::$noInit || $plugin->elevated) {
+            $plugin->register();
         }
 
         /*
@@ -236,7 +246,7 @@ class PluginManager
             return;
         }
 
-        if (!self::$noInit) {
+        if (!self::$noInit || $plugin->elevated) {
             $plugin->boot();
         }
     }
@@ -501,7 +511,32 @@ class PluginManager
     //
     // Dependencies
     //
-    
+
+    /**
+     * Scans the system plugins to locate any dependencies
+     * that are not currently installed.
+     */
+    public function findMissingDependencies()
+    {
+        $missing = [];
+
+        foreach ($this->plugins as $id => $plugin) {
+            if (!$required = $this->getDependencies($plugin)) {
+                continue;
+            }
+
+            foreach ($required as $require) {
+                if ($this->hasPlugin($require)) {
+                    continue;
+                }
+
+                $missing[] = $require;
+            }
+        }
+
+        return $missing;
+    }
+
     /**
      * Cross checks all plugins and their dependancies, if not met plugins
      * are disabled and vice versa.

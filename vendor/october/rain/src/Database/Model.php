@@ -150,11 +150,17 @@ class Model extends EloquentModel
     protected static $relationTypes = ['hasOne', 'hasMany', 'belongsTo', 'belongsToMany', 'morphTo', 'morphOne', 'morphMany', 'morphToMany', 'morphedByMany', 'attachOne', 'attachMany', 'hasManyThrough'];
 
     /**
+     * @var array The array of models booted events.
+     */
+    protected static $eventsBooted = [];
+
+    /**
      * Constructor
      */
     public function __construct(array $attributes = [])
     {
         parent::__construct();
+        $this->bootNicerEvents();
         $this->extendableConstruct();
         $this->fill($attributes);
     }
@@ -199,18 +205,6 @@ class Model extends EloquentModel
     }
 
     /**
-     * The "booting" method of the model.
-     * Overrided to attach before/after method hooks into the model events.
-     * @see \Illuminate\Database\Eloquent\Model::boot()
-     * @return void
-     */
-    public static function boot()
-    {
-        parent::boot();
-        self::bootNicerEvents();
-    }
-
-    /**
      * Extend this object properties upon construction.
      */
     public static function extend(Closure $callback)
@@ -221,9 +215,14 @@ class Model extends EloquentModel
     /**
      * Bind some nicer events to this model, in the format of method overrides.
      */
-    private static function bootNicerEvents()
+    protected function bootNicerEvents()
     {
-        $self = get_called_class();
+        $class = get_called_class();
+
+        if (isset(static::$eventsBooted[$class])) {
+            return;
+        }
+
         $radicals = ['creat', 'sav', 'updat', 'delet', 'fetch'];
         $hooks = ['before' => 'ing', 'after' => 'ed'];
 
@@ -234,7 +233,7 @@ class Model extends EloquentModel
                 $method = $hook . ucfirst($radical); // beforeSave / afterSave
                 if ($radical != 'fetch') $method .= 'e';
 
-                self::$eventMethod(function($model) use ($self, $method) {
+                self::$eventMethod(function($model) use ($method) {
                     $model->fireEvent('model.' . $method);
 
                     if ($model->methodExists($method))
@@ -251,6 +250,22 @@ class Model extends EloquentModel
             if ($model->methodExists('afterBoot'))
                 return $model->afterBoot();
         });
+
+        static::$eventsBooted[$class] = true;
+    }
+
+    /**
+     * Remove all of the event listeners for the model
+     * Also flush registry of models that had events booted
+     * Allows painless unit testing.
+     *
+     * @override
+     * @return void
+     */
+    public static function flushEventListeners()
+    {
+        parent::flushEventListeners();
+        static::$eventsBooted = [];
     }
 
     /**
@@ -890,7 +905,7 @@ class Model extends EloquentModel
                     break;
                 }
 
-                if (!is_array($value)) $value = [$value];
+                if (is_string($value)) $value = [$value];
 
                 // Do not sync until the model is saved
                 $this->bindEventOnce('model.afterSave', function() use ($relationObj, $value){
@@ -1103,9 +1118,15 @@ class Model extends EloquentModel
     {
         $attr = parent::getAttributeValue($key);
 
-        // Handle jsonable
+        /*
+         * Return valid json (boolean, array) if valid, otherwise
+         * jsonable fields will return a string for invalid data.
+         */
         if (in_array($key, $this->jsonable) && !empty($attr)) {
-            $attr = json_decode($attr, true);
+            $_attr = json_decode($attr, true);
+            if (json_last_error() === JSON_ERROR_NONE) {
+                $attr = $_attr;
+            }
         }
 
         return $attr;

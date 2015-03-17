@@ -37,7 +37,8 @@ class FieldParser
         'textarea',
         'richeditor',
         'markdown',
-        'fileupload'
+        'fileupload',
+        'repeater'
     ];
 
     /**
@@ -48,7 +49,35 @@ class FieldParser
     {
         if ($template) {
             $this->template = $template;
-            $this->processTags($template);
+            $this->processTemplate($template);
+        }
+    }
+
+    /**
+     * Processes repeating tags first, then reigstered tags and assigns
+     * the results to local object properties.
+     * @return void
+     */
+    protected function processTemplate($template)
+    {
+        // Process repeaters
+        list($template, $repeatTags, $repeatfields) = $this->processRepeaterTags($template);
+
+        // Process registered tags
+        list($tags, $fields) = $this->processTags($template);
+        $this->tags = $this->tags + $tags;
+        $this->fields = $this->fields + $fields;
+
+        /*
+         * Layer the repeater tags over the standard ones to retain 
+         * the original sort order
+         */
+        foreach ($repeatfields as $field => $params) {
+            $this->fields[$field] = $params;
+        }
+
+        foreach ($repeatTags as $field => $params) {
+            $this->tags[$field] = $params;
         }
     }
 
@@ -60,6 +89,26 @@ class FieldParser
     public static function parse($template)
     {
         return new static($template);
+    }
+
+    /**
+     * Returns all tag strings found in the template
+     * @return array
+     */
+    public function getTags()
+    {
+        return $this->tags;
+    }
+
+    /**
+     * Returns tag strings for a specific field
+     * @return array
+     */
+    public function getFieldTags($field)
+    {
+        return isset($this->tags[$field])
+            ? $this->tags[$field]
+            : [];
     }
 
     /**
@@ -87,22 +136,58 @@ class FieldParser
      * Returns default values for all fields.
      * @return array
      */
-    public function getDefaultParams()
+    public function getDefaultParams($fields = null)
     {
-        $defaults = [];
-        foreach ($this->fields as $field => $params) {
-            $defaults[$field] = isset($params['default']) ? $params['default'] : null;
+        if (!$fields) {
+            $fields = $this->fields;
         }
+
+        $defaults = [];
+
+        foreach ($fields as $field => $params) {
+            if ($params['type'] == 'repeater') {
+                $defaults[$field] = [];
+                $defaults[$field][] = $this->getDefaultParams(array_get($params, 'fields', []));
+            }
+            else {
+                $defaults[$field] = isset($params['default']) ? $params['default'] : null;
+            }
+        }
+
         return $defaults;
     }
 
     /**
-     * Returns all tag strings found in the template
-     * @return array
+     * Processes all repeating tags against a template, this will strip
+     * any repeaters from the template for further processing.
+     * @param  string $template
+     * @return void
      */
-    public function getTags()
+    protected function processRepeaterTags($template)
     {
-        return $this->tags;
+        list($tags, $fields) = $this->processTags($template, ['repeater']);
+
+        foreach ($fields as $name => &$field) {
+            $outerTemplate = $tags[$name];
+            $innerTemplate = $field['default'];
+            unset($field['default']);
+            list($innerTags, $innerFields) = $this->processTags($innerTemplate);
+            list($openTag, $closeTag) = explode($innerTemplate, $outerTemplate);
+
+            $field['fields'] = $innerFields;
+            $tags[$name] = [
+                'tags'     => $innerTags,
+                'template' => $outerTemplate,
+                'open'     => $openTag,
+                'close'    => $closeTag
+            ];
+
+            // Remove the inner content of the repeater 
+            // tag to prevent further parsing
+            $template = str_replace($outerTemplate, $openTag.$closeTag, $template);
+        }
+
+        return [$template, $tags, $fields];
     }
 
     /**
@@ -110,12 +195,16 @@ class FieldParser
      * @param  string $template
      * @return void
      */
-    protected function processTags($template)
+    protected function processTags($template, $usingTags = null)
     {
+        if (!$usingTags) {
+            $usingTags = $this->registeredTags;
+        }
+
         $tags = [];
         $fields = [];
 
-        $result = $this->processTagsRegex($template, $this->registeredTags);
+        $result = $this->processTagsRegex($template, $usingTags);
         $tagStrings = $result[0];
         $tagNames = $result[1];
         $paramStrings = $result[2];
@@ -136,9 +225,6 @@ class FieldParser
             $tags[$name] = $tagString;
             $fields[$name] = $params;
         }
-
-        $this->tags = $this->tags + $tags;
-        $this->fields = $this->fields + $fields;
 
         return [$tags, $fields];
     }

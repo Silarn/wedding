@@ -2,14 +2,13 @@
 {# Note: Only one levels of sublinks are supported by Bootstrap 3 #}
 {% set
     links = {
-        'welcome':         ['#section-welcome', 'Home'],
-        's2':       ['#section-2', 'Section 2'],
-        's3':       ['#section-3', 'Section 3'],
-        's4':       ['#section-4', 'Section 4'],
-        's5':       ['#section-5', 'Section 5'],
-        's6':       ['#section-6', 'Section 6'],
-        's7':       ['#section-7', 'Section 7'],
-        's8':       ['#section-8', 'Section 8'],
+        's2':       ['#story', 'Our Story'],
+        's3':       ['#gallery', 'Gallery'],
+        's4':       ['#people', 'The Cast'],
+        's5':       ['#events', 'Locations'],
+        's7':       ['#travel', 'To Stay | Do'],
+        's6':       ['#registry', 'Registry'],
+        's8':       ['#rsvp', 'RSVP'],
     }
 %}
 
@@ -24,7 +23,6 @@
                 'ss5':       ['#section-5', 'Section 5'],
                 'ss6':       ['#section-6', 'Section 6'],
                 'ss7':       ['#section-7', 'Section 7'],
-                'ss8':       ['#section-8', 'Section 8'],
             },
         },
 #}
@@ -36,7 +34,7 @@
                 href="{{ link.sublinks ? '#' : (link.page ?: link[0]) }}"
                 {% if link.sublinks %}data-toggle="dropdown"{% endif %}
                 class="{{ link.sublinks ? 'dropdown-toggle' }}"
-                {% if not link.sublinks %}onclick="$.scrollTo('{{ link.page ?: link[0] }}', 1000, {offset: {top:-53}, onAfter: function() {
+                {% if not link.sublinks %}onclick="$.scrollTo('{{ link.page ?: link[0] }} .container-fluid, {{ link.page ?: link[0] }} .container', 1000, {offset: {top:-53}, onAfter: function() {
                     
                     var target = $('{{ link.page ?: link[0] }}')[0];
                     var original_id = target.id;
@@ -61,19 +59,38 @@
 
 {% import _self as nav %}
 
-<nav id="layout-nav" class="navbar navbar-inverse navbar-fixed-top" role="navigation">
-    <div class="container">
+<nav id="layout-nav" class="navbar navbar-inverse" role="navigation">
+    <div class="container-fluid">
         <div class="navbar-header">
+            <a href="{{ 'home'|page }}" class="navbar-brand visible-xs-block" onclick="$.scrollTo('#welcome', 1000, {offset: {top:-50}, onAfter: function() {
+                    
+                    var target = $('#welcome')[0];
+                    var original_id = target.id;
+                    target.id = null;
+                    location.hash = '#welcome';
+                    target.id = original_id;
+    
+                }}); return false;"><img class="img-responsive" src="{{'assets/images/G+J-menu.png' | theme}}" style="max-height: 18px; display: inline;"></a>
             <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-main-collapse">
                 <span class="sr-only">Toggle navigation</span>
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
             </button>
-            <a class="navbar-brand" href="{{ 'home'|page }}">Flat</a>
         </div>
         <div class="collapse navbar-collapse navbar-main-collapse">
-            <ul class="nav navbar-nav navbar-right">
+            <ul class="nav navbar-nav">
+                <li class="hidden-xs">
+                    <a href="#welcome" onclick="$.scrollTo('#welcome', 1000, {offset: {top:-50}, onAfter: function() {
+                            
+                            var target = $('#welcome')[0];
+                            var original_id = target.id;
+                            target.id = null;
+                            location.hash = '#welcome';
+                            target.id = original_id;
+        
+                        }}); return false;"><img class="img-responsive" src="{{'assets/images/G+J-menu.png' | theme}}" style="max-height: 18px; display: inline;"></a>
+                </li>
                 {{ nav.render_menu(links) }}
             </ul>
         </div>

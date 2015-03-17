@@ -56,6 +56,8 @@ Renders a multiple line editor field for larger blocks of text. The view value i
 
 ### Rich editor
 
+Renders a WYSIWYG content editor.
+
     {richeditor name="content" label="Main content"}Default text{/checkbox}
 
 Renders in Twig as
@@ -64,6 +66,8 @@ Renders in Twig as
 
 ### Markdown
 
+Renders a Markdown content editor.
+
     {markdown name="content" label="Markdown content"}Default text{/markdown}
 
 Renders in Twig as
@@ -71,6 +75,8 @@ Renders in Twig as
     {{ content|md }}
 
 ### Checkbox
+
+Renders conditional content inside (still under development)
 
     {checkbox name="showHeader" label="Show heading" default="true"}
         <p>This content will be shown if the checkbox is ticked</p>
@@ -90,6 +96,8 @@ Renders a file upload editor field. The view value is the full path to the file.
 
 ### Repeater
 
+Renders a repeating section with other fields inside.
+
     {repeater}
         <h2>{text name="title" label="Title"}Title{/text}</h2>
         <p>{textarea name="content" label="Content"}Content{/textarea}</p>
@@ -97,6 +105,30 @@ Renders a file upload editor field. The view value is the full path to the file.
 
 Renders in Twig as
 
-    {% for content in repeater %}
-        {{ content|raw }}
+    {% for fields in repeater %}
+        <h2>{{ fields.title }}</h2>
+        <p>{{ fields.content|raw }}</p>
     {% endfor %}
+
+Calling `$syntax->toEditor()` will return a different array for a repeater field:
+
+    'repeater' => [
+        'label' => 'Website name',
+        'type' => 'repeater'
+        'fields' => [
+
+            'title' => [
+                'label' => 'Title',
+                'default' => 'Title',
+                'type' => 'text'
+            ],
+            'content' => [
+                'label' => 'Content',
+                'default' => 'Content',
+                'type' => 'textarea'
+            ]
+
+        ]
+    ]
+
+

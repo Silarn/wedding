@@ -3,108 +3,56 @@ url = "/"
 layout = "default"
 hidden = "0"
 ==
-<div id="skrollr-body">
-    <section id="section-welcome" data-40-bottom-bottom="background-position-y: 40%;" data-0-top-bottom="background-position-y: 90%;">
-        <div class="container">
-            <div class="row">
-                <div class="col-sm-4">
-                    <h3>We're Getting Married!</h3>
-                    <p>June 20th, 2015.</p>
-                </div>
-                <div class="col-sm-7 col-sm-offset-1">
-                </div>
-            </div>
-        </div>
-    </section>
+<?php
+function onSubmit()
+{
+    $data = Input::all();
+    $rules = ['name' => 'required', 'password' => 'required', 'attending' => 'required|digits_between:1,4'];
+    $msgs = ['required' => 'You must enter something here.','digits_between' => 'Right now we\'re expecting 1-4 attendees!'];
+    $v = Validator::make($data, $rules, $msgs);
+
+    if ($v->fails())
+    {
+        $this['result'] = ['error' => $v->messages()->first()];
+        Flash::error($v->messages()->first());
+        return;
+    } else {
+        if (md5(post('password')) === '098f6bcd4621d373cade4e832627b4f6') {
+            Mail::queue('emails.rsvp', $data, function($message)
+            {
+                $message->from('wedding@gretaandjeremy.com', post('name'));
     
-    <section id="section-2" data-32-bottom-top="background-position-y: 65%;" data-0-top-bottom="background-position-y: 0%;">
-        <div class="container">
-            <div class="row">
-                <div class="col-sm-4">
-                    <h3>Section 2</h3>
-                </div>
-                <div class="col-sm-7 col-sm-offset-1">
-                    <p>Some content possibly.</p>
-                </div>
-            </div>
-        </div>
-    </section>
+                $message->to('j@gretaandjeremy.com')->subject('RSVP Received: '.post('name'));
     
-    <section id="section-3">
-        <div class="container">
-            <div class="row">
-                <div class="col-sm-4">
-                    <h3>Section 2</h3>
-                </div>
-                <div class="col-sm-7 col-sm-offset-1">
-                    <p>Some content possibly.</p>
-                </div>
-            </div>
-        </div>
-    </section>
+            });
     
-    <section id="section-4">
-        <div class="container">
-            <div class="row">
-                <div class="col-sm-4">
-                    <h3>Section 2</h3>
-                </div>
-                <div class="col-sm-7 col-sm-offset-1">
-                    <p>Some content possibly.</p>
-                </div>
-            </div>
-        </div>
-    </section>
+            $this['result'] = ['success' => 'RSVP Received! See you there!'];
+            Flash::success('RSVP Received! See you there!');
+            return;
+        } else {
+            $this['result'] = ['error' => 'Password didn\'t match.'];
+            Flash::error('Password didn\'t match.');
+            return;
+        }
+    }
     
-    <section id="section-5">
-        <div class="container">
-            <div class="row">
-                <div class="col-sm-4">
-                    <h3>Section 2</h3>
-                </div>
-                <div class="col-sm-7 col-sm-offset-1">
-                    <p>Some content possibly.</p>
-                </div>
-            </div>
-        </div>
-    </section>
-    
-    <section id="section-6">
-        <div class="container">
-            <div class="row">
-                <div class="col-sm-4">
-                    <h3>Section 2</h3>
-                </div>
-                <div class="col-sm-7 col-sm-offset-1">
-                    <p>Some content possibly.</p>
-                </div>
-            </div>
-        </div>
-    </section>
-    
-    <section id="section-7">
-        <div class="container">
-            <div class="row">
-                <div class="col-sm-4">
-                    <h3>Section 2</h3>
-                </div>
-                <div class="col-sm-7 col-sm-offset-1">
-                    <p>Some content possibly.</p>
-                </div>
-            </div>
-        </div>
-    </section>
-    
-    <section id="section-8">
-        <div class="container">
-            <div class="row">
-                <div class="col-sm-4">
-                    <h3>Section 2</h3>
-                </div>
-                <div class="col-sm-7 col-sm-offset-1">
-                    <p>Some content possibly.</p>
-                </div>
-            </div>
-        </div>
-    </section>
+    $this['result'] = ['error' => 'Something didn\'t work!'];
+    Flash::error('Something didn\'t work!');
+}
+?>
+==
+<div class="container-fluid">
+    {% partial 'welcome.htm' %}
+    <!-- Header -->
+    <header id="layout-header" class="header-navbar">
+        <!-- Nav -->
+        {% partial "nav" %}
+    </header>
+    {% partial 'story.htm' %}
+    {% partial 'gallery.htm' %}
+    {% partial 'people.htm' %}
+    {% partial 'events.htm' %}
+    {% partial 'travel.htm' %}
+    {% partial 'registry.htm' %}
+    {% partial 'rsvp.htm' %}
 </div>

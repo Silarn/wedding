@@ -3,30 +3,69 @@ description = "Default layout"
 <!DOCTYPE html>
 <html>
     <head>
-        <title>Greta & Jeremy Wedding :: {{ this.page.title }}</title>
-        <meta name="author" content="October CMS">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <link rel="icon" type="image/png" href="{{ 'assets/images/logo.png'|theme }}" />
+        <title>G + J :: Greta & Jeremy Get Married</title>
+        <meta name="author" content="Jeremy Rimpo">
+        <meta name="keywords" content="Greta,Jeremy,Wedding,Houston,Texas,June,2015">
+        <meta property="og:title" content="Greta & Jeremy Get Married">
+        <meta property="og:site_name" content="G + J :: Greta & Jeremy Get Married">
+        <meta property="og:url" content="http://www.gretaandjeremy.com">
+        <meta property="og:description" content="The Love Story and wedding information of Greta Brannan & Jeremy Rimpo. See our venues, brief bios of the wedding party, get directions to the hotel and other POIs, and see our photos.">
+        <meta property="og:locale" content="en_US">
+        <meta property="og:image" content="{{ 'assets/images/G+J-top.png' | theme }}">
+        <meta property="og:image:type" content="image/png">
+        <meta property="og:image:width" content="555">
+        <meta property="og:image:height" content="560">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.5">
+        <script data-pace-options='{ "ajax": false, "resetartOnRequestAfter": false }' src="{{ ['assets/javascript/pace.min.js']|theme }}"></script>
+        <link href='{{ ['assets/css/pace.css']|theme }}' rel='stylesheet' type='text/css'>
+        <script src="{{ ['assets/javascript/picturefill.min.js']|theme }}" async></script>
+        <link rel="icon" type="image/png" href="{{ 'assets/images/G+J.png'|theme }}" />
         {% styles %}
+        <link href='http://fonts.googleapis.com/css?family=Merriweather+Sans:400,400italic,700,700italic' rel='stylesheet' type='text/css'>
         <link href="{{ [
-            'assets/css/theme.css', 'assets/css/custom.css'
-        ]|theme }}" rel="stylesheet">
+            'assets/vendor/bootstrap/less/bootstrap.less', 'assets/less/local.less'
+        ]|theme }}" rel="stylesheet" type='text/css'>
+        <script type="text/javascript"
+          src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCNX75nEnFyvoR5IZyThMDzyRocMo-FU6M">
+        </script>
+        <!--[if lt IE 9]>
+            <link href="{{ ['assets/less/local.ie8.less']|theme }}" rel="stylesheet" type='text/css'>
+           <script>
+                document.createElement('header');
+                document.createElement('nav');
+                document.createElement('section');
+                document.createElement('article');
+                document.createElement('aside');
+                document.createElement('footer');
+            </script>
+        <![endif]-->
+
     </head>
     <body class="page-{{ this.page.id }} layout-{{ this.layout.id }}">
-
-        <!-- Header -->
-        <header id="layout-header" class="header-navbar">
-            <!-- Nav -->
-            {% partial "nav" %}
-        </header>
-
-
+        <script>
+          (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+          (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+          m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+          })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+        
+          ga('create', 'UA-60573616-1', 'auto');
+          ga('send', 'pageview');
+        
+        </script>
+        <img id="loading-logo" class="img-responsive" src="{{ 'assets/images/G+J-top.png' | theme }}" style="position:absolute;margin:auto;top:0;bottom:0;left:0;right:0;">
         <!-- Content -->
-        <div id="layout-content">
+        <div id="layout-content" style="display:none;">
             {% page %}
         </div>
 
         <!-- Scripts -->
+        <script>
+            // Picture element HTML5 shiv
+            document.createElement( "picture" );
+        </script>
+        <!--[if gte IE 9]> -->
+        <script src="{{ ['assets/javascript/picturefill.min.js']|theme }}" async></script>
+        <!-- <![endif]-->
         <script src="{{ [
             'assets/javascript/jquery.js',
             'assets/vendor/bootstrap/js/transition.js',
@@ -41,16 +80,12 @@ description = "Default layout"
             'assets/vendor/bootstrap/js/scrollspy.js',
             'assets/vendor/bootstrap/js/tab.js',
             'assets/vendor/bootstrap/js/affix.js',
-            'assets/vendor/flat-ui/js/bootstrap-select.js',
-            'assets/vendor/flat-ui/js/bootstrap-switch.js',
-            'assets/vendor/flat-ui/js/flatui-checkbox.js',
-            'assets/vendor/flat-ui/js/flatui-radio.js',
-            'assets/vendor/flat-ui/js/jquery.tagsinput.js',
-            'assets/vendor/flat-ui/js/jquery.placeholder.js',
             'assets/javascript/jquery.scrollTo.min.js',
+            'assets/javascript/jquery.printElement.min.js',
             'assets/javascript/skrollr.min.js',
-            'assets/javascript/app.js',
-        ]|theme }}"></script>
+            ] | theme }}"></script>
+        <script src="//browserstate.github.io/history.js/scripts/bundled/html4+html5/jquery.history.js"></script>
+        <script src="{{ ['assets/javascript/app.js'] | theme }}"></script>
         {% framework extras %}
         {% scripts %}
 

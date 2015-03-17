@@ -1,0 +1,36 @@
+section {
+    .container-fluid, .container {
+        filter: ~'progid:DXImageTransform.Microsoft.gradient(startColorstr=#b3000000, endColorstr=#b3000000)';
+        -ms-filter: ~'"progid:DXImageTransform.Microsoft.gradient(startColorstr=#b3000000,endColorstr=#b3000000)"';
+        background: transparent;
+        zoom: 1;
+    }
+}
+
+.event-img-container {
+    .event-overlay {
+        /* IE 8 */
+        -ms-filter: ~'"progid:DXImageTransform.Microsoft.Alpha(Opacity=0)"';
+        
+        /* IE 5-7 */
+        filter: alpha(opacity=0);
+    }
+    
+    &:hover {
+        .event-overlay {
+            /* IE 8 */
+            -ms-filter: ~'"progid:DXImageTransform.Microsoft.Alpha(Opacity=40)"';
+            
+            /* IE 5-7 */
+            filter: alpha(opacity=40);
+        }
+    }
+}
+
+.sprite-b:hover {
+    /* IE 8 */
+    -ms-filter: ~'"progid:DXImageTransform.Microsoft.Alpha(Opacity=0)"';
+    
+    /* IE 5-7 */
+    filter: alpha(opacity=0);
+}

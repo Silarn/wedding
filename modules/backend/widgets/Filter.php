@@ -15,10 +15,29 @@ use ApplicationException;
  */
 class Filter extends WidgetBase
 {
+    //
+    // Configurable properties
+    //
+
+    /**
+     * @var array Scope definition configuration.
+     */
+    public $scopes;
+
+    /**
+     * @var string The context of this filter, scopes that do not belong
+     * to this context will not be shown.
+     */
+    public $context = null;
+
+    //
+    // Object properties
+    //
+
     /**
      * {@inheritDoc}
      */
-    public $defaultAlias = 'filter';
+    protected $defaultAlias = 'filter';
 
     /**
      * @var boolean Determines if scope definitions have been created.
@@ -36,12 +55,6 @@ class Filter extends WidgetBase
     protected $scopeModels = [];
 
     /**
-     * @var string The context of this filter, scopes that do not belong
-     * to this context will not be shown.
-     */
-    protected $activeContext = null;
-
-    /**
      * @var array List of CSS classes to apply to the filter container element
      */
     public $cssClasses = [];
@@ -51,7 +64,10 @@ class Filter extends WidgetBase
      */
     public function init()
     {
-        $this->activeContext = $this->getConfig('context');
+        $this->fillFromConfig([
+            'scopes',
+            'context',
+        ]);
     }
 
     /**
@@ -170,6 +186,10 @@ class Filter extends WidgetBase
      */
     protected function getAvailableOptions($scope, $searchQuery = null)
     {
+        if (count($scope->options)) {
+            return $scope->options;
+        }
+
         $available = [];
         $nameColumn = $this->getScopeNameColumn($scope);
         $options = $this->getOptionsFromModel($scope, $searchQuery);
@@ -210,7 +230,7 @@ class Filter extends WidgetBase
         $query = $model->newQuery();
 
         $this->fireEvent('filter.extendQuery', [$query, $scope]);
-        
+
         if (!$searchQuery) {
             return $query->get();
         }
@@ -237,11 +257,11 @@ class Filter extends WidgetBase
         /*
          * All scopes
          */
-        if (!isset($this->config->scopes) || !is_array($this->config->scopes)) {
-            $this->config->scopes = [];
+        if (!isset($this->scopes) || !is_array($this->scopes)) {
+            $this->scopes = [];
         }
 
-        $this->addScopes($this->config->scopes);
+        $this->addScopes($this->scopes);
 
         /*
          * Extensibility
@@ -438,10 +458,11 @@ class Filter extends WidgetBase
 
     /**
      * Returns the active context for displaying the filter.
+     * @return string
      */
     public function getContext()
     {
-        return $this->activeContext;
+        return $this->context;
     }
 
     //

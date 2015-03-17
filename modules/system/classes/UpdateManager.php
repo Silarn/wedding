@@ -75,11 +75,10 @@ class UpdateManager
     {
         $this->pluginManager = PluginManager::instance();
         $this->versionManager = VersionManager::instance();
-        $this->migrator = App::make('migrator');
-        $this->repository = App::make('migration.repository');
         $this->tempDirectory = temp_path();
         $this->baseDirectory = base_path();
         $this->disableCoreUpdates = Config::get('cms.disableCoreUpdates', false);
+        $this->bindContainerObjects();
 
         /*
          * Ensure temp directory exists
@@ -87,6 +86,17 @@ class UpdateManager
         if (!File::isDirectory($this->tempDirectory)) {
             File::makeDirectory($this->tempDirectory, 0777, true);
         }
+    }
+
+    /**
+     * These objects are "soft singletons" and may be lost when
+     * the IoC container reboots. This provides a way to rebuild
+     * for the purposes of unit testing.
+     */
+    public function bindContainerObjects()
+    {
+        $this->migrator = App::make('migrator');
+        $this->repository = App::make('migration.repository');
     }
 
     /**

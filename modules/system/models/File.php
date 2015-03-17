@@ -17,16 +17,20 @@ class File extends FileBase
      */
     protected $table = 'system_files';
 
-    //
-    // Configuration
-    //
+    /**
+     * If working with local storage, determine the absolute local path.
+     */
+    protected function getLocalRootPath()
+    {
+        return Config::get('filesystems.disks.local.root', storage_path().'/app');
+    }
 
     /**
      * Define the public address for the storage path.
      */
-    public function getPublicDirectory()
+    public function getPublicPath()
     {
-        $uploadsPath = Config::get('cms.uploadsPath', '/storage/app/uploads');
+        $uploadsPath = Config::get('cms.storage.uploads.path', '/storage/app/uploads');
 
         if (!preg_match("/(\/\/|http|https)/", $uploadsPath)) {
             $uploadsPath = Request::getBasePath() . $uploadsPath;

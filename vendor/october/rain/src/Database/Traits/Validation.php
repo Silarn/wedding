@@ -1,5 +1,6 @@
 <?php namespace October\Rain\Database\Traits;
 
+use Lang;
 use Input;
 use October\Rain\Database\ModelException;
 use Illuminate\Support\MessageBag;
@@ -106,16 +107,21 @@ trait Validation
      */
     public function validate($rules = null, $customMessages = null, $attributeNames = null)
     {
-        if ($this->validationErrors === null)
+        if ($this->validationErrors === null) {
             $this->validationErrors = new MessageBag;
+        }
 
-        $throwOnValidation = property_exists($this, 'throwOnValidation') ? $this->throwOnValidation : true;
+        $throwOnValidation = property_exists($this, 'throwOnValidation')
+            ? $this->throwOnValidation
+            : true;
 
         if ($this->fireModelEvent('validating') === false) {
-            if ($throwOnValidation)
+            if ($throwOnValidation) {
                 throw new ModelException($this);
-            else
+            }
+            else {
                 return false;
+            }
         }
 
         /*
@@ -160,26 +166,53 @@ trait Validation
                 $data = array_merge($cleanAttributes, $encryptedAttributes);
             }
 
-            if (property_exists($this, 'customMessages') && is_null($customMessages))
+            /*
+             * Custom messages, translate internal references
+             */
+            if (property_exists($this, 'customMessages') && is_null($customMessages)) {
                 $customMessages = $this->customMessages;
+            }
 
-            if (is_null($customMessages))
+            if (is_null($customMessages)) {
                 $customMessages = [];
+            }
 
-            if (is_null($attributeNames))
-                $attributeNames = [];
+            $translatedCustomMessages = [];
+            foreach ($customMessages as $rule => $customMessage){
+                $translatedCustomMessages[$rule] = Lang::get($customMessage);
+            }
 
-            if (property_exists($this, 'attributeNames'))
-                $attributeNames = array_merge($this->attributeNames, $attributeNames);
+            $customMessages = $translatedCustomMessages;
 
             /*
-             * Use custom language attributes
+             * Attribute names, translate internal references
              */
-            $translations = trans('validation.attributes');
-            if (is_array($translations))
+            if (is_null($attributeNames)) {
+                $attributeNames = [];
+            }
+
+            if (property_exists($this, 'attributeNames')) {
+                $attributeNames = array_merge($this->attributeNames, $attributeNames);
+            }
+
+            $translatedAttributeNames = [];
+            foreach ($attributeNames as $attribute => $attributeName){
+                $translatedAttributeNames[$attribute] = Lang::get($attributeName);
+            }
+
+            $attributeNames = $translatedAttributeNames;
+
+            /*
+             * Translate any externally defined attribute names
+             */
+            $translations = Lang::get('validation.attributes');
+            if (is_array($translations)) {
                 $attributeNames = array_merge($translations, $attributeNames);
+            }
 
-
+            /*
+             * Hand over to the validator
+             */
             $validator = self::makeValidator($data, $rules, $customMessages, $attributeNames);
 
             $success = $validator->passes();
@@ -190,15 +223,15 @@ trait Validation
             }
             else {
                 $this->validationErrors = $validator->messages();
-                if (Input::hasSession())
-                    Input::flash();
+                if (Input::hasSession()) Input::flash();
             }
         }
 
         $this->fireModelEvent('validated', false);
 
-        if (!$success && $throwOnValidation)
+        if (!$success && $throwOnValidation) {
             throw new ModelException($this);
+        }
 
         return $success;
     }

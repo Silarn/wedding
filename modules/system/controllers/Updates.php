@@ -36,6 +36,7 @@ class Updates extends Controller
     {
         parent::__construct();
 
+        $this->addJs('/modules/system/assets/js/updates/updates.js', 'core');
         $this->addCss('/modules/system/assets/css/updates.css', 'core');
 
         BackendMenu::setContext('October.System', 'system', 'updates');
@@ -51,6 +52,7 @@ class Updates extends Controller
         $this->vars['projectId'] = Parameters::get('system::project.id');
         $this->vars['projectName'] = Parameters::get('system::project.name');
         $this->vars['projectOwner'] = Parameters::get('system::project.owner');
+        $this->vars['pluginsActiveCount'] = PluginVersion::isEnabled()->count();
         $this->vars['pluginsCount'] = PluginVersion::count();
         return $this->asExtension('ListController')->index();
     }
