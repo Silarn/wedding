@@ -202,7 +202,7 @@
                     img.data('topWas', img.offset().top - $(window).scrollTop());
                     img.data('leftWas', img.offset().left - $(window).scrollLeft());
                     clone = port.clone();
-                    port.css({'position': 'fixed', 'height': img.height()+4, 'top': img.data('topWas'), 'bottom': img.data('topWas')+img.outerHeight(), 'left': img.data('leftWas'), 'margin': 0, 'z-index': 200, 'max-width': ($(window).width() < 768) ? 400 : '100%'});
+                    port.css({'position': 'fixed', 'height': img.height(), 'top': img.data('topWas'), 'bottom': img.data('topWas')+img.outerHeight(), 'left': img.data('leftWas'), 'margin': 0, 'z-index': 200, 'max-width': ($(window).width() < 768) ? 400 : '100%'});
                     port.after(clone);
                     port.animate({'top': ($(window).height()-port.height())/2, 'left': ($(window).width()-port.width())/2, 'bottom': ($(window).height()-port.height())/2, 'right': ($(window).width()-port.width())/2}, 500, function(){
                         port.css({'width': 'auto', 'height': 'auto'});
@@ -229,6 +229,9 @@
                 },
                 smoothScrolling: false
             });
+            setInterval(function(){
+                $k.refresh();
+            }, 1000);
         });
         $('section').each(function(){
             var id = $(this).attr('id');
@@ -238,24 +241,10 @@
     
     Pace.once('done', exec);
     
-    $(window).load(function() {
-        setTimeout(function() {
-            if (!$('body').hasClass('pace-over')) exec();
-        }, 100);
-    });
-    
     var geocoder;
-    var directions = new google.maps.DirectionsService();
+    var directions;
     var omniReset, resetMdGm, mdpc, mdpcDir, mdpcCenter, gm2, gm2Dir, gm2Center, omni, omniCenter;
-    var mapOptions = {
-        zoom: 12,
-        center: '',
-        mapTypeId: google.maps.MapTypeId.ROADMAP,
-        disableDefaultUI: true,
-        scrollwheel: false,
-        draggable: false, 
-        panControl: false, 
-    }
+    var mapOptions;
     function MDPC() {
         geocoder = new google.maps.Geocoder();
         geocoder.geocode({
@@ -358,7 +347,6 @@
             }
         });
     }
-    google.maps.event.addDomListener(window, 'load', MDPC);
     function Omni() {
         geocoder = new google.maps.Geocoder();
         geocoder.geocode({
@@ -394,7 +382,44 @@
             }
         });
     }
-    google.maps.event.addDomListener(window, 'load', Omni);
+    
+    window.mapsInit = function() {
+        mapOptions = {
+            zoom: 12,
+            center: '',
+            mapTypeId: google.maps.MapTypeId.ROADMAP,
+            disableDefaultUI: true,
+            scrollwheel: false,
+            draggable: false, 
+            panControl: false, 
+        };
+        directions = new google.maps.DirectionsService();
+        MDPC();
+        Omni();
+    }
+    
+    function loadScript() {
+      var script = document.createElement('script');
+      script.type = 'text/javascript';
+      script.src = 'https://maps.googleapis.com/maps/api/js' +
+          '?callback=mapsInit&key=AIzaSyCNX75nEnFyvoR5IZyThMDzyRocMo-FU6M';
+      document.body.appendChild(script);
+    }
+    
+    $(window).load(function() {
+        setTimeout(function() {
+            if (!$('body').hasClass('pace-over')) exec();
+            if(window.dispatchEvent) {
+                var evt = document.createEvent("HTMLEvents");
+                evt.initEvent("resize", false, true);
+                window.dispatchEvent(evt);
+            } else {
+                window.fireEvent("onresize");
+            }
+        }, 100);
+        
+        loadScript();
+    });
     
     $(window).resize(function(){
         $(".navbar-collapse").css({ maxHeight: $(window).height() - $(".navbar-header").height() + "px" });

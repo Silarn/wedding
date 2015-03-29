@@ -7,8 +7,8 @@ body {
     background: #D6BD90;
     color: white;
     margin-top: 50px;
-    font-family: 'Merriweather Sans', Arial, sans-serif;
-    font-size: 14px;
+    font-family: 'Droid Sans', Arial, sans-serif;
+    font-size: 15px;
     &.stop-scrolling {
         height: 100%;
         overflow: hidden;
@@ -101,6 +101,11 @@ img {
             width: 100% !important;
         }
     }
+}
+
+#layout-nav {
+    border: none;
+    border-radius: 0;
 }
 
 .event-section, .event-info {
@@ -471,7 +476,6 @@ img {
         background: rgb(0, 0, 0);
         background: rgba(0, 0, 0, 0.7);
         border-radius: 50%;
-        border: 2px solid white;
         overflow: hidden;
         -webkit-transition: border-radius 0.4s ease-in-out .2s;
         -moz-transition: border-radius 0.4s ease-in-out .2s;
@@ -720,14 +724,16 @@ img {
             display: table;
             width: 100%;
             li {
-                display: table-cell;
-                width: 12.5%;
+                display: inline-block;
+                width: auto;
                 height: 100%;
                 white-space: nowrap;
+                text-align: center;
+                float: none;
                 a {
                     font-weight: bold;
                     text-align: center;
-                    padding: 15px 0;
+                    padding: 15px 10px;
                 }
                 &:first-child a {
                     border-left: 0;
@@ -919,7 +925,6 @@ body.pace-over .pace {
         @media (min-width: 768px) and (max-width: 991px) {
             > li > a {
                 font-size: 13px;
-                padding: 15px 19px;
                 line-height: 23px;
             }
         }

@@ -417,7 +417,7 @@ class Model extends EloquentModel
     public function getRelationDefinition($name)
     {
         if (($type = $this->getRelationType($name)) !== null) {
-            return $this->{$type}[$name];
+            return $this->{$type}[$name] + $this->getRelationDefaults($type);
         }
     }
 
@@ -444,8 +444,9 @@ class Model extends EloquentModel
         $relationType = $this->getRelationType($name);
         $relation = $this->getRelationDefinition($name);
 
-        if ($relationType == 'morphTo' || !isset($relation[0]))
+        if ($relationType == 'morphTo' || !isset($relation[0])) {
             return null;
+        }
 
         $relationClass = $relation[0];
         return new $relationClass();
@@ -460,10 +461,28 @@ class Model extends EloquentModel
     public function isRelationPushable($name)
     {
         $definition = $this->getRelationDefinition($name);
-        if (!is_null($definition) && !array_key_exists('push', $definition))
+        if (is_null($definition) || !array_key_exists('push', $definition)) {
             return true;
+        }
 
         return (bool) $definition['push'];
+    }
+
+    /**
+     * Returns default relation arguments for a given type.
+     * @param string $name Relation type
+     * @return array
+     */
+    protected function getRelationDefaults($type)
+    {
+        switch ($type) {
+            case 'attachOne':
+            case 'attachMany':
+                return ['order' => 'sort_order', 'delete' => true];
+
+            default:
+                return [];
+        }
     }
 
     /**
@@ -544,7 +563,6 @@ class Model extends EloquentModel
      */
     protected function validateRelationArgs($relationName, $optional, $required = [])
     {
-
         $relation = $this->getRelationDefinition($relationName);
 
         // Query filter arguments
@@ -967,6 +985,42 @@ class Model extends EloquentModel
             case 'attachMany':
                 $relationObj->setSimpleValue($value);
                 break;
+        }
+    }
+
+    //
+    // Pivot
+    //
+
+    /**
+     * Create a generic pivot model instance.
+     * @param  \October\Rain\Database\Model  $parent
+     * @param  array   $attributes
+     * @param  string  $table
+     * @param  bool    $exists
+     * @return \October\Rain\Database\Pivot
+     */
+    public function newPivot(EloquentModel $parent, array $attributes, $table, $exists)
+    {
+        return new Pivot($parent, $attributes, $table, $exists);
+    }
+
+    /**
+     * Create a pivot model instance specific to a relation.
+     * @param  \October\Rain\Database\Model  $parent
+     * @param  string  $relationName
+     * @param  array   $attributes
+     * @param  string  $table
+     * @param  bool    $exists
+     * @return \October\Rain\Database\Pivot
+     */
+    public function newRelationPivot($relationName, $parent, $attributes, $table, $exists)
+    {
+        $definition = $this->getRelationDefinition($relationName);
+
+        if (!is_null($definition) && array_key_exists('pivotModel', $definition)) {
+            $pivotModel = $definition['pivotModel'];
+            return new $pivotModel($parent, $attributes, $table, $exists);
         }
     }
 

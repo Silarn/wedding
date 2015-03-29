@@ -3,31 +3,40 @@ description = "Default layout"
 <!DOCTYPE html>
 <html>
     <head>
-        <title>G + J :: Greta & Jeremy Get Married</title>
+        <title>G + J :: Greta & Jeremy Get Married!</title>
         <meta name="author" content="Jeremy Rimpo">
-        <meta name="keywords" content="Greta,Jeremy,Wedding,Houston,Texas,June,2015">
-        <meta property="og:title" content="Greta & Jeremy Get Married">
-        <meta property="og:site_name" content="G + J :: Greta & Jeremy Get Married">
+        <meta name="keywords" content="Greta,Jeremy,wedding,Houston,Texas,June,2015,married,marry,marriage,registry,rsvp,bridesmaids,groomsmen,hotel,lodging">
+        <meta http-equiv="content-language" content="en-us">
+        <meta property="og:title" content="G + J :: Greta & Jeremy Get Married!">
+        <meta property="og:site_name" content="G + J :: Greta & Jeremy Get Married!">
         <meta property="og:url" content="http://www.gretaandjeremy.com">
-        <meta property="og:description" content="The Love Story and wedding information of Greta Brannan & Jeremy Rimpo. See our venues, brief bios of the wedding party, get directions to the hotel and other POIs, and see our photos.">
+        <meta property="og:description" name="description" content="Greta Brannan and Jeremy Rimpo are getting married on June 20, 2015! See our story, check out celebration details, and find lodging info here. Hope you can join us in Houston!">
         <meta property="og:locale" content="en_US">
-        <meta property="og:image" content="{{ 'assets/images/G+J-top.png' | theme }}">
-        <meta property="og:image:type" content="image/png">
-        <meta property="og:image:width" content="555">
-        <meta property="og:image:height" content="560">
+        <meta property="og:image" content="http://wgal1.gretaandjeremy.com/15.jpg">
+        <meta property="og:image:type" content="image/jpg">
+        <meta property="og:image:width" content="1200">
+        <meta property="og:image:height" content="1600">
         <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.5">
+        <link rel="icon" type="image/png" href="{{ 'assets/images/G+J.png'|theme }}" />
+
+    </head>
+    <body class="page-{{ this.page.id }} layout-{{ this.layout.id }}">
         <script data-pace-options='{ "ajax": false, "resetartOnRequestAfter": false }' src="{{ ['assets/javascript/pace.min.js']|theme }}"></script>
         <link href='{{ ['assets/css/pace.css']|theme }}' rel='stylesheet' type='text/css'>
         <script src="{{ ['assets/javascript/picturefill.min.js']|theme }}" async></script>
-        <link rel="icon" type="image/png" href="{{ 'assets/images/G+J.png'|theme }}" />
-        {% styles %}
-        <link href='http://fonts.googleapis.com/css?family=Merriweather+Sans:400,400italic,700,700italic' rel='stylesheet' type='text/css'>
-        <link href="{{ [
-            'assets/vendor/bootstrap/less/bootstrap.less', 'assets/less/local.less'
-        ]|theme }}" rel="stylesheet" type='text/css'>
-        <script type="text/javascript"
-          src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCNX75nEnFyvoR5IZyThMDzyRocMo-FU6M">
+        <script>
+          (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+          (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+          m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+          })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+        
+          ga('create', 'UA-60573616-1', {'siteSpeedSampleRate': 100});
+          ga('require', 'displayfeatures');
+          ga('require', 'linkid', 'linkid.js');
+          ga('send', 'pageview');
+        
         </script>
+        <img id="loading-logo" class="img-responsive" src="{{ 'assets/images/G+J-top.png' | theme }}" style="position:absolute;margin:auto;top:0;bottom:0;left:0;right:0;">
         <!--[if lt IE 9]>
             <link href="{{ ['assets/less/local.ie8.less']|theme }}" rel="stylesheet" type='text/css'>
            <script>
@@ -39,26 +48,6 @@ description = "Default layout"
                 document.createElement('footer');
             </script>
         <![endif]-->
-
-    </head>
-    <body class="page-{{ this.page.id }} layout-{{ this.layout.id }}">
-        <script>
-          (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-          (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-          m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-          })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
-        
-          ga('create', 'UA-60573616-1', 'auto');
-          ga('send', 'pageview');
-        
-        </script>
-        <img id="loading-logo" class="img-responsive" src="{{ 'assets/images/G+J-top.png' | theme }}" style="position:absolute;margin:auto;top:0;bottom:0;left:0;right:0;">
-        <!-- Content -->
-        <div id="layout-content" style="display:none;">
-            {% page %}
-        </div>
-
-        <!-- Scripts -->
         <script>
             // Picture element HTML5 shiv
             document.createElement( "picture" );
@@ -66,6 +55,32 @@ description = "Default layout"
         <!--[if gte IE 9]> -->
         <script src="{{ ['assets/javascript/picturefill.min.js']|theme }}" async></script>
         <!-- <![endif]-->
+        
+        <!-- Content -->
+        <div id="layout-content" style="display:none;">
+            {% page %}
+        </div>
+        
+        {% styles %}
+        <script type="text/javascript">
+        WebFontConfig = {
+            google: { families: [ 'Droid+Sans:400,700:latin', 'Averia+Libre:400,700,400italic,700italic:latin', 'Roboto+Condensed:400italic,700italic,400,700:latin' ] }
+        };
+        (function() {
+            var wf = document.createElement('script');
+            wf.src = ('https:' == document.location.protocol ? 'https' : 'http') +
+              '://ajax.googleapis.com/ajax/libs/webfont/1/webfont.js';
+            wf.type = 'text/javascript';
+            wf.async = 'true';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(wf, s);
+        })();
+        </script>
+        <link href="{{ [
+            'assets/vendor/bootstrap/less/bootstrap.less', 'assets/less/local.less'
+        ]|theme }}" rel="stylesheet" type='text/css'>
+        
+        <!-- Scripts -->
         <script src="{{ [
             'assets/javascript/jquery.js',
             'assets/vendor/bootstrap/js/transition.js',
@@ -84,8 +99,8 @@ description = "Default layout"
             'assets/javascript/jquery.printElement.min.js',
             'assets/javascript/skrollr.min.js',
             ] | theme }}"></script>
-        <script src="//browserstate.github.io/history.js/scripts/bundled/html4+html5/jquery.history.js"></script>
-        <script src="{{ ['assets/javascript/app.js'] | theme }}"></script>
+        <script src="{{ 'assets/javascript/jquery.history.js' | theme }}" async></script>
+        <script src="{{ ['assets/javascript/app.js'] | theme }}" async></script>
         {% framework extras %}
         {% scripts %}
 

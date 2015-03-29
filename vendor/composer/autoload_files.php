@@ -7,8 +7,8 @@ $baseDir = dirname($vendorDir);
 
 return array(
     $vendorDir . '/swiftmailer/swiftmailer/lib/swift_required.php',
-    $vendorDir . '/nikic/php-parser/lib/bootstrap.php',
     $vendorDir . '/symfony/var-dumper/Symfony/Component/VarDumper/Resources/functions/dump.php',
+    $vendorDir . '/nikic/php-parser/lib/bootstrap.php',
     $vendorDir . '/guzzlehttp/streams/src/functions.php',
     $vendorDir . '/kriswallsmith/assetic/src/functions.php',
     $vendorDir . '/guzzlehttp/guzzle/src/functions.php',
