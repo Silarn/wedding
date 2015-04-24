@@ -9,6 +9,7 @@ use Backend\Classes\FormField;
 use Backend\Classes\FormWidgetBase;
 use ValidationException;
 use Exception;
+use Lang;
 
 /**
  * File upload field
@@ -291,6 +292,10 @@ class FileUpload extends FormWidgetBase
         }
 
         try {
+            if (!Input::hasFile('file_data')) {
+                throw new ApplicationException('File missing from request');
+            }
+
             $uploadedFile = Input::file('file_data');
 
             $validationRules = ['max:'.File::getMaxFilesize()];

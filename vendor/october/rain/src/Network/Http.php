@@ -242,7 +242,7 @@ class Http
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
         curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, false);
-        if (defined('CURLOPT_FOLLOWLOCATION')) {
+        if (defined('CURLOPT_FOLLOWLOCATION') && !ini_get('open_basedir')) {
             curl_setopt($curl, CURLOPT_FOLLOWLOCATION, true);
             curl_setopt($curl, CURLOPT_MAXREDIRS, $this->maxRedirects);
         }
@@ -264,7 +264,7 @@ class Http
          */
         if ($this->requestData) {
             if (in_array($this->method, [self::METHOD_POST, self::METHOD_PATCH, self::METHOD_PUT])) {
-                curl_setopt($curl, CURLOPT_POSTFIELDS, $this->requestData);
+                curl_setopt($curl, CURLOPT_POSTFIELDS, http_build_query($this->requestData));
             }
             elseif ($this->method == self::METHOD_GET) {
                 curl_setopt($curl, CURLOPT_URL, $this->url . '?' . http_build_query($this->requestData));
@@ -320,7 +320,7 @@ class Http
         /*
          * Emulate FOLLOW LOCATION behavior
          */
-        if (!defined('CURLOPT_FOLLOWLOCATION')) {
+        if (!defined('CURLOPT_FOLLOWLOCATION') || ini_get('open_basedir')) {
             if ($this->redirectCount === null) {
                 $this->redirectCount = $this->maxRedirects;
             }

@@ -189,7 +189,7 @@ class Model extends EloquentModel
     }
 
     /**
-     * Reloads the model from the database.
+     * Reloads the model attributes from the database.
      * @return \Illuminate\Database\Eloquent\Model|static
      */
     public function reload()
@@ -202,6 +202,21 @@ class Model extends EloquentModel
         }
 
         return $this;
+    }
+
+    /**
+     * Reloads the model relationship cache.
+     * @param string  $relationName
+     * @return void
+     */
+    public function reloadRelations($relationName = null)
+    {
+        if (!$relationName) {
+            $this->setRelations([]);
+        }
+        else {
+            $this->setRelation($relationName, null);
+        }
     }
 
     /**
@@ -417,7 +432,7 @@ class Model extends EloquentModel
     public function getRelationDefinition($name)
     {
         if (($type = $this->getRelationType($name)) !== null) {
-            return $this->{$type}[$name] + $this->getRelationDefaults($type);
+            return (array) $this->{$type}[$name] + $this->getRelationDefaults($type);
         }
     }
 
@@ -1090,16 +1105,29 @@ class Model extends EloquentModel
     {
         $always = array_get($options, 'always', false);
 
-        if (!$this->save(null, $sessionKey) && !$always)
+        if (!$this->save(null, $sessionKey) && !$always) {
             return false;
+        }
 
         foreach ($this->relations as $name => $models) {
-            if (!$this->isRelationPushable($name))
+            if (!$this->isRelationPushable($name)) {
                 continue;
+            }
 
-            foreach (Collection::make($models) as $model) {
-                if (!$model->push($sessionKey))
+            if ($models instanceof Collection) {
+                $models = $models->all();
+            }
+            elseif ($models instanceof EloquentModel) {
+                $models = [$models];
+            }
+            else {
+                $models = (array) $models;
+            }
+
+            foreach (array_filter($models) as $model) {
+                if (!$model->push($sessionKey)) {
                     return false;
+                }
             }
         }
 
@@ -1149,11 +1177,11 @@ class Model extends EloquentModel
 
         $attr = parent::getAttribute($key);
 
-        if ($attr === null) {
-            if ($this->hasRelation($key)) {
-                $this->relations[$key] = $this->$key()->getResults();
-                return $this->relations[$key];
-            }
+        if ($attr === null &&
+            $this->hasRelation($key) &&
+            !array_key_exists($key, $this->relations)
+        ) {
+            $attr = $this->relations[$key] = $this->$key()->getResults();
         }
 
         // After Event

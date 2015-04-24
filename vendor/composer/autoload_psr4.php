@@ -16,8 +16,6 @@ return array(
     'League\\Csv\\' => array($vendorDir . '/league/csv/src'),
     'Illuminate\\Html\\' => array($vendorDir . '/illuminate/html'),
     'Illuminate\\' => array($vendorDir . '/laravel/framework/src/Illuminate'),
-    'GuzzleHttp\\Stream\\' => array($vendorDir . '/guzzlehttp/streams/src'),
-    'GuzzleHttp\\' => array($vendorDir . '/guzzlehttp/guzzle/src'),
     'Cms\\' => array($baseDir . '/modules/cms'),
     'ClassPreloader\\' => array($vendorDir . '/classpreloader/classpreloader/src'),
     'Backend\\' => array($baseDir . '/modules/backend'),

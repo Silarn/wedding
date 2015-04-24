@@ -207,6 +207,12 @@ class Controller
         $result = $this->runPage($page);
 
         /*
+         * Post-processing
+         */
+
+        $result = $this->postProcessResult($page, $url, $result);
+
+        /*
          * Extensibility
          */
         if (
@@ -453,6 +459,24 @@ class Controller
         return $response;
     }
 
+    /**
+     * Post-processes page HTML code before it's sent to the client.
+     * @param \Cms\Classes\Page $page Specifies the current CMS page.
+     * @param string $url Specifies the current URL.
+     * @param string $html The page markup to post processs.
+     * @return string Returns the updated result string.
+     */
+    protected function postProcessResult($page, $url, $html)
+    {
+        $html = MediaViewHelper::instance()->processHtml($html);
+
+        $holder = (object)['html'=>$html];
+
+        Event::fire('cms.page.postprocess', [$this, $url, $page, $holder]);
+
+        return $holder->html;
+    }
+
     //
     // Initialization
     //
@@ -640,7 +664,7 @@ class Controller
             list($componentName, $handlerName) = explode('::', $handler);
             $componentObj = $this->findComponentByName($componentName);
 
-            if ($componentObj && method_exists($componentObj, $handlerName)) {
+            if ($componentObj && $componentObj->methodExists($handlerName)) {
                 $this->componentContext = $componentObj;
                 $result = $componentObj->runAjaxHandler($handlerName);
                 return ($result) ?: true;
@@ -1052,7 +1076,7 @@ class Controller
             $url = substr($url, 1);
         }
 
-        $routeAction = 'Cms\Classes\Controller@run';
+        $routeAction = 'Cms\Classes\CmsController@run';
         $actionExists = Route::getRoutes()->getByAction($routeAction) !== null;
 
         if ($actionExists) {
@@ -1263,51 +1287,5 @@ class Controller
                 $component->setExternalPropertyName($propertyName, $paramName);
             }
         }
-    }
-
-    //
-    // Keep Laravel Happy
-    //
-
-    /**
-     * Get the middleware assigned to the controller.
-     *
-     * @return array
-     */
-    public function getMiddleware()
-    {
-        return [];
-    }
-
-    /**
-     * Get the registered "before" filters.
-     *
-     * @return array
-     */
-    public function getBeforeFilters()
-    {
-        return [];
-    }
-
-    /**
-     * Get the registered "after" filters.
-     *
-     * @return array
-     */
-    public function getAfterFilters()
-    {
-        return [];
-    }
-
-    /**
-     * Execute an action on the controller.
-     *
-     * @param  string  $method
-     * @param  array   $parameters
-     * @return \Symfony\Component\HttpFoundation\Response
-     */
-    public function callAction($method, $parameters)
-    {
-        return call_user_func_array(array($this, $method), $parameters);
     }
 }

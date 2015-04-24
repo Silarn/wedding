@@ -17,12 +17,12 @@ function onSubmit()
         Flash::error($v->messages()->first());
         return;
     } else {
-        if (md5(post('password')) === '098f6bcd4621d373cade4e832627b4f6') {
+        if (md5(post('password')) === '792ea141e9f690dd1092d9bcf93b55b0') {
             Mail::queue('emails.rsvp', $data, function($message)
             {
                 $message->from('wedding@gretaandjeremy.com', post('name'));
     
-                $message->to('j@gretaandjeremy.com')->subject('RSVP Received: '.post('name'));
+                $message->to('us@gretaandjeremy.com')->subject('RSVP Received: '.post('name'));
     
             });
     
