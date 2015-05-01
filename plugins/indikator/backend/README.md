@@ -1,4 +1,4 @@
-##Backend Plus plugin for October CMS
+##Backend Plus plugin for OctoberCMS
 This plugin extend the backend to some new widgets, features and components.
 
 ###New widgets
@@ -41,7 +41,7 @@ This plugin extend the backend to some new widgets, features and components.
 1. Click on the __Add widget__ button.
 1. Select the current widget from the list.
 
-###Roadmap
+###Plans
 * Switching between rounded and cube profile image.
 * Applying the new features to the whole backend.
 * Generate random "lorem ipsum" text.

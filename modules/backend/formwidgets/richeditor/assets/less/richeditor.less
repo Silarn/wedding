@@ -4,9 +4,8 @@
 @richeditor-zindex: 600;
 @richeditor-gutter: 20px;
 
-@import "_redactor.less";
 @import "_figures.less";
-@import "_shared.less";
+@import "../vendor/redactor/redactor.less";
 
 .field-flush .field-richeditor {
     &, &.editor-focus {
@@ -40,6 +39,7 @@
 
 .redactor-box {
     margin-bottom: 0;
+    overflow: hidden;
 
     & iframe {
         border: none; // Oc

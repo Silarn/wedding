@@ -101,12 +101,12 @@
         "source": {
             "type": "git",
             "url": "https://github.com/octoberrain/cms.git",
-            "reference": "bdd0cefcfa6e06efe4a97f12f4011bd3757936f1"
+            "reference": "9e5c8860f061afc0751224c92d6e597276b57d31"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/octoberrain/cms/zipball/bdd0cefcfa6e06efe4a97f12f4011bd3757936f1",
-            "reference": "bdd0cefcfa6e06efe4a97f12f4011bd3757936f1",
+            "url": "https://api.github.com/repos/octoberrain/cms/zipball/9e5c8860f061afc0751224c92d6e597276b57d31",
+            "reference": "9e5c8860f061afc0751224c92d6e597276b57d31",
             "shasum": ""
         },
         "require": {
@@ -114,7 +114,7 @@
             "october/rain": "~1.0",
             "php": ">=5.4.0"
         },
-        "time": "2015-04-23 08:09:18",
+        "time": "2015-04-24 08:51:06",
         "type": "october-module",
         "extra": {
             "branch-alias": {
@@ -156,12 +156,12 @@
         "source": {
             "type": "git",
             "url": "https://github.com/octoberrain/backend.git",
-            "reference": "b63c8d51d4923600f316734a46595b4c5bdabe45"
+            "reference": "ce93a7fa67d706e93b5dfea8fc35cb670005a50b"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/octoberrain/backend/zipball/b63c8d51d4923600f316734a46595b4c5bdabe45",
-            "reference": "b63c8d51d4923600f316734a46595b4c5bdabe45",
+            "url": "https://api.github.com/repos/octoberrain/backend/zipball/ce93a7fa67d706e93b5dfea8fc35cb670005a50b",
+            "reference": "ce93a7fa67d706e93b5dfea8fc35cb670005a50b",
             "shasum": ""
         },
         "require": {
@@ -169,7 +169,7 @@
             "october/rain": "~1.0",
             "php": ">=5.4.0"
         },
-        "time": "2015-04-23 23:26:59",
+        "time": "2015-04-24 00:59:37",
         "type": "october-module",
         "extra": {
             "branch-alias": {
@@ -1061,12 +1061,12 @@
         "source": {
             "type": "git",
             "url": "https://github.com/octobercms/library.git",
-            "reference": "97c69953b7aeee69eb8c7a220cd9baa7b78f8302"
+            "reference": "7bb64a15decaad8280d720ba3302572a503170c3"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/octobercms/library/zipball/97c69953b7aeee69eb8c7a220cd9baa7b78f8302",
-            "reference": "97c69953b7aeee69eb8c7a220cd9baa7b78f8302",
+            "url": "https://api.github.com/repos/octobercms/library/zipball/7bb64a15decaad8280d720ba3302572a503170c3",
+            "reference": "7bb64a15decaad8280d720ba3302572a503170c3",
             "shasum": ""
         },
         "require": {
@@ -1109,7 +1109,7 @@
             "symfony/config": "2.5.*",
             "symfony/translation": "2.5.*"
         },
-        "time": "2015-04-21 10:03:22",
+        "time": "2015-04-28 12:01:02",
         "type": "library",
         "extra": {
             "branch-alias": {

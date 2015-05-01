@@ -48,7 +48,7 @@ class File extends Model
     protected $appends = ['path', 'extension'];
 
     /**
-     * Mime types
+     * @var array Mime types
      */
     protected $autoMimeTypes = [
         'docx' => 'application/msword',
@@ -61,10 +61,19 @@ class File extends Model
     ];
 
     /**
+     * @var mixed Externally set path
+     */
+    public $pathOverride = -1;
+
+    /**
      * @var array Helper attribute for getPath
      */
     public function getPathAttribute()
     {
+        if ($this->pathOverride !== -1) {
+            return $this->pathOverride;
+        }
+
         return $this->getPath();
     }
 
