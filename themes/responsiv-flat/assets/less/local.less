@@ -9,6 +9,9 @@ body {
     margin-top: 50px;
     font-family: 'Droid Sans', Arial, sans-serif;
     font-size: 15px;
+    &.layout-error {
+        margin-top: 0;
+    }
     &.stop-scrolling {
         height: 100%;
         overflow: hidden;
@@ -92,6 +95,17 @@ img {
         height: 100%;
         background: white;
     }
+   .labels {
+     color: red;
+     background-color: white;
+     font-family: "Lucida Grande", "Arial", sans-serif;
+     font-size: 10px;
+     font-weight: bold;
+     text-align: center;
+     width: 100px;
+     border: 2px solid black;
+     white-space: nowrap;
+   }
 }
 .panel-container {
     display: none;
@@ -357,7 +371,7 @@ img {
                 &:nth-child(3) {
                     margin: 0 100% 0 -100%;
                 }
-                &:nth-child(5) {
+                &:nth-child(7) {
                     margin: 0 -100% 0 100%;
                 }
             }
@@ -466,6 +480,15 @@ img {
             }
         }
     }
+}
+
+#error {
+    background-image: url(../images/sections/blue-bg.jpg);
+    position: absolute;
+    width: 100%;
+    margin: auto;
+    top: 53px;
+    bottom: 0;
 }
 
 
@@ -674,6 +697,35 @@ img {
             position: absolute;
             top: 0px;
             left: -98%;
+            max-width: none;
+            max-height: 100%;
+        }
+        .sprite-b {
+            position: absolute;
+            top: 0px;
+            max-width: none;
+            max-height: 100%;
+            left: 0px;
+            transition: opacity .2s linear;
+            &:hover {
+                opacity: 0.0;
+            }
+        }
+    }
+    .hilton-img {
+        display: block;
+        margin: 0 auto;
+        position: relative;
+        overflow: hidden;
+        max-width: 250px;
+        .spacer {
+            width: 100%;
+            height: auto;
+        }
+        .sprite-a {
+            position: absolute;
+            top: 0px;
+            left: -100%;
             max-width: none;
             max-height: 100%;
         }

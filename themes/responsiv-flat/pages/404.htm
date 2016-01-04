@@ -1,20 +1,26 @@
-title = "Page not found (404)"
+title = "Lost and Confused :: 404"
 url = "/404"
-layout = "default"
+layout = "error"
+description = "You're wandering off the site! Get back on!"
+hidden = "0"
+meta_title = "404 Error"
+meta_description = "Page Not Found Error"
 ==
-<div class="jumbotron">
-    <div class="container">
+<div class="container-fluid">
+    <section id="error">
         <div class="row">
-            <div class="col-xs-2 text-center">
-                <br />
-                <img src="{{ 'assets/images/icons/svg/compas.svg'|theme }}" alt="">
-            </div>
-            <div class="col-xs-10">
-                <h1>You appear to be lost...</h1>
-                <p>We're very sorry, but the page you requested <em>cannot be found</em> here.</p>
-                <p>Try returning to where you started with this compass.</p>
-                <p><small><em>Error code: 404</em></small>
+            <div class="col-xs-12">
+                <div class="col-md-3 text-md-right">
+                    <br />
+                    <a href="{{ '/'|app }}"><img src="{{ 'assets/images/G+J.png'|theme }}" alt=""></a>
+                </div>
+                <div class="col-md-9">
+                    <h1>Hey, follow me!</h1>
+                    <p>Hello! I saw you over here, looking lost and confused. The whole site is on one page, so you won't find anything elsewhere else!</p>
+                    <p>Click on our logo to get back to the site!</p>
+                    <p><small><em>Error code: 404</em></small>
+                </div>
             </div>
         </div>
-    </div>
+    </section>
 </div>

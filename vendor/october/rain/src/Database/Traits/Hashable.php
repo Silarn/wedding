@@ -7,7 +7,7 @@ trait Hashable
 {
     /**
      * @var array List of attribute names which should be hashed using the Bcrypt hashing algorithm.
-     * 
+     *
      * protected $hashable = [];
      */
 
@@ -44,6 +44,8 @@ trait Hashable
      */
     public function addHashableAttribute($attribute)
     {
+        if (in_array($attribute, $this->hashable)) return;
+
         $this->hashable[] = $attribute;
         return $this;
     }
@@ -58,6 +60,17 @@ trait Hashable
     {
         $this->originalHashableValues[$key] = $value;
         return Hash::make($value);
+    }
+
+    /**
+     * Checks if the supplied plain value matches the stored hash value.
+     * @param  string $key   Attribute to check
+     * @param  string $value Value to check
+     * @return bool
+     */
+    public function checkHashValue($key, $value)
+    {
+        return Hash::check($value, $this->{$key});
     }
 
     /**

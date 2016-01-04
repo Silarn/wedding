@@ -168,9 +168,10 @@
             });
             $('.print-directions').click(function(){
                 var printCss = {
-                    styleToAdd:'position:static;width:100%;height:auto;color:black !important;display:block;',
+                    "styleToAdd": 'position:static;width:100%;min-height:5in;color:black !important;display:block;',
+                    "overrideElementCSS": ['http://www.gretaandjeremy.com/themes/responsiv-flat/assets/css/maps.css']
                 };
-                var target = $(this).closest('.row').find('.panel-container');
+                var target = $(this).closest('.row').find('.panel-container').children('div');
                 target.printElement({"printMode": 'popup', 'printBodyOptions': printCss});
             });
             $('.event-img-container').click(function(){
@@ -256,20 +257,34 @@
                 
                 mdpc = new google.maps.Map(document.getElementById("mdpc-map"), mapOptions);
                 mdpcText = document.getElementById("mdpc-panel");
-    
-                var marker = new google.maps.Marker({
+                
+                var markerA = new MarkerWithLabel({
                     map: mdpc,
-                    position: mdpcLoc
+                    position: mdpcLoc,
+                    title: 'MDPC',
+                    labelContent: 'MDPC',
+                    labelAnchor: new google.maps.Point(45, 0),
+                    labelClass: "labels",
+                    labelStyle: {opacity: 0.75, color: "#000", "text-align": "center"}
                 });
                 
                 geocoder.geocode({
-                    'address': '4 Riverway, Houston, TX 77056'
+                    'address': '2001 Post Oak Boulevard, Houston, TX 77056'
                 }, function(results, status) {
                     if (status == google.maps.GeocoderStatus.OK) {
                         var omniLoc = results[0].geometry.location;
                         mdpcDir = new google.maps.DirectionsRenderer();
                         mdpcDir.setMap(mdpc);
                         mdpcDir.setPanel(mdpcText);
+                        var markerB = new MarkerWithLabel({
+                            map: mdpc,
+                            position: omniLoc,
+                            title: 'Hilton Post Oak',
+                            labelContent: 'Hilton Post Oak',
+                            labelAnchor: new google.maps.Point(45, 0),
+                            labelClass: "labels",
+                            labelStyle: {opacity: 0.75, color: "#000", "text-align": "center"}
+                        });
                         var request = {
                             origin: omniLoc,
                             destination: mdpcLoc,
@@ -298,10 +313,24 @@
                 
                 gm2 = new google.maps.Map(document.getElementById("gm2-map"), mapOptions);
                 gm2Text = document.getElementById("gm2-panel");
-    
-                var marker = new google.maps.Marker({
+                
+                var markerA = new MarkerWithLabel({
                     map: gm2,
-                    position: gm2Loc
+                    position: gm2Loc,
+                    title: 'Gallery M Squared',
+                    labelContent: 'Gallery M Squared',
+                    labelAnchor: new google.maps.Point(45, 0),
+                    labelClass: "labels",
+                    labelStyle: {opacity: 0.75, color: "#000", "text-align": "center"}
+                });
+                var markerB = new MarkerWithLabel({
+                    map: gm2,
+                    position: mdpcLoc,
+                    title: 'MDPC',
+                    labelContent: 'MDPC',
+                    labelAnchor: new google.maps.Point(45, 0),
+                    labelClass: "labels",
+                    labelStyle: {opacity: 0.75, color: "#000", "text-align": "center"}
                 });
                 
                 gm2Dir = new google.maps.DirectionsRenderer();
@@ -350,16 +379,21 @@
     function Omni() {
         geocoder = new google.maps.Geocoder();
         geocoder.geocode({
-            'address': 'Four Riverway, Houston, TX 77056'
+            'address': '2001 Post Oak Boulevard, Houston, TX 77056'
         }, function(results, status) {
             if (status == google.maps.GeocoderStatus.OK) {
                 var omniLoc = results[0].geometry.location;
                 mapOptions.center = omniLoc;
-                omni = new google.maps.Map(document.getElementById("omni-map"), mapOptions);
+                omni = new google.maps.Map(document.getElementById("hilton-map"), mapOptions);
     
-                var marker = new google.maps.Marker({
+                var marker = new MarkerWithLabel({
                     map: omni,
-                    position: omniLoc
+                    position: omniLoc,
+                    title: 'Hilton Post Oak',
+                    labelContent: "Hilton Post Oak",
+                    labelAnchor: new google.maps.Point(45, 0),
+                    labelClass: "labels",
+                    labelStyle: {opacity: 0.75, color: "#000", "text-align": "center"}
                 });
                 
                 google.maps.event.addDomListener(omni, "idle", function() {
@@ -379,13 +413,34 @@
                         window.fireEvent("onresize");
                     }
                 });
+                geocoder = new google.maps.Geocoder();
+                geocoder.geocode({
+                    'address': '1753 Post Oak Blvd, Houston, TX 77056'
+                }, function(results, status) {
+                    if (status == google.maps.GeocoderStatus.OK) {
+                        var masLoc = results[0].geometry.location;
+                        var masMarker = new MarkerWithLabel({
+                            position: masLoc,
+                            map: omni,
+                            title: 'Masraff\'s',
+                            labelContent: 'Masraff\'s',
+                            labelAnchor: new google.maps.Point(45, 0),
+                            labelClass: "labels",
+                            labelStyle: {opacity: 0.75, color: "#000", "text-align": "center"}
+                        });
+                    }
+                });
             }
         });
     }
     
     window.mapsInit = function() {
+        var script = document.createElement('script');
+        script.type = 'text/javascript';
+        script.src = '/themes/responsiv-flat/assets/javascript/markerswithlabel.min.js';
+        document.body.appendChild(script);
         mapOptions = {
-            zoom: 12,
+            zoom: 15,
             center: '',
             mapTypeId: google.maps.MapTypeId.ROADMAP,
             disableDefaultUI: true,

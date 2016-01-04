@@ -9,7 +9,7 @@
 </script>
 
 <script type="text/template" data-control="video-template">
-    <video src="{src}" controls poster="<?= URL::to('modules/cms/Widgets/mediamanager/assets/images/video-poster.png') ?>">
+    <video src="{src}" controls poster="<?= URL::to('modules/cms/widgets/mediamanager/assets/images/video-poster.png') ?>">
         <div class="panel media-player-fallback">Your browser doesn't support HTML5 video.</div>
     </video>
 </script>
@@ -32,6 +32,15 @@
         <div class="sidebar-image-placeholder no-border">
             <i class="icon-asterisk"></i>
             <p><?= e(trans('cms::lang.media.multiple_selected')) ?></p>
+        </div>
+    </div>
+</script>
+
+<script type="text/template" data-control="go-up">
+    <div class="sidebar-image-placeholder-container">
+        <div class="sidebar-image-placeholder no-border">
+            <i class="icon-level-up"></i>
+            <p><?= e(trans('cms::lang.media.return_to_parent')) ?></p>
         </div>
     </div>
 </script>

@@ -6,15 +6,16 @@ $vendorDir = dirname(dirname(__FILE__));
 $baseDir = dirname($vendorDir);
 
 return array(
-    $vendorDir . '/swiftmailer/swiftmailer/lib/swift_required.php',
     $vendorDir . '/symfony/var-dumper/Symfony/Component/VarDumper/Resources/functions/dump.php',
+    $vendorDir . '/swiftmailer/swiftmailer/lib/swift_required.php',
     $vendorDir . '/nikic/php-parser/lib/bootstrap.php',
-    $vendorDir . '/kriswallsmith/assetic/src/functions.php',
     $vendorDir . '/illuminate/html/helpers.php',
+    $vendorDir . '/kriswallsmith/assetic/src/functions.php',
     $vendorDir . '/ircmaxell/password-compat/lib/password.php',
     $vendorDir . '/october/rain/src/Support/helpers.php',
-    $vendorDir . '/danielstjules/stringy/src/Create.php',
+    $vendorDir . '/symfony/polyfill-php56/bootstrap.php',
     $vendorDir . '/psy/psysh/src/Psy/functions.php',
+    $vendorDir . '/danielstjules/stringy/src/Create.php',
     $vendorDir . '/laravel/framework/src/Illuminate/Foundation/helpers.php',
     $vendorDir . '/laravel/framework/src/Illuminate/Support/helpers.php',
 );

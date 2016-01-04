@@ -3,19 +3,32 @@
 return [
     'plugin' => [
         'name' => 'Backend Plus',
-        'description' => 'New features and widgets for backend.',
+        'description' => 'New useful features and widgets for back-end.',
         'author' => 'Gergő Szabó'
     ],
     'settings' => [
-        'sidebar_description' => 'Hide the menu description in sidebar.',
-        'focus_searchfield' => 'Focus the search field automatically.',
-        'virtual_keyboard' => 'Show the virtual keyboard by input fields.',
-        'more_themes' => 'Hide the "Find more themes..." link.',
-        'themes_comment' => 'Located on Front-end theme page.',
-        'comment' => 'It only works on Settings pages.'
+        'search_label' => 'Focus the search field automatically.',
+        'search_comment' => 'Firstly in the lists, secondly in the sidebar.',
+        'avatar_label' => 'Rounded profile image instead of cube one.',
+        'avatar_comment' => 'The avatar modifies only in the top menu.',
+        'clearbutton_label' => 'Add the clear button to input fields.',
+        'clearbutton_comment' => 'It works only by simple text fields.',
+        'keyboard_label' => 'Show the virtual keyboard by forms.',
+        'keyboard_comment' => 'It works only by simple text fields.',
+        'sidebar_desc_label' => 'Hide the description of menus in the sidebar.',
+        'sidebar_desc_comment' => 'It works only the pages of Settings menu.',
+        'sidebar_search_label' => 'Hide the search field in the sidebar.',
+        'sidebar_search_comment' => 'It works only the pages of Settings menu.',
+        'media_label' => 'Hide the Media link in the top menu.',
+        'media_comment' => 'It still available but it not shows.',
+        'themes_label' => 'Hide the "Find more themes" link.',
+        'themes_comment' => 'Located on the Front-end theme page.',
+        'delete_plugin_label' => 'Delete the October Demo plugin.',
+        'delete_plugin_comment' => 'All files will be removed permanently.'
     ],
     'widgets' => [
         'system' => [
+            'title' => 'Backend - System status plus',
             'label' => 'System status plus',
             'webpage' => 'Webpage',
             'updates' => 'Updates',
@@ -23,12 +36,14 @@ return [
             'themes' => 'Themes'
         ],
         'version' => [
+            'title' => 'Backend - Versions',
             'label' => 'Versions',
             'cms' => 'CMS',
             'php' => 'PHP',
             'gd' => 'GD'
         ],
         'logs' => [
+            'title' => 'Backend - Logs',
             'label' => 'Logs',
             'access' => 'Access',
             'event' => 'Event',
@@ -36,32 +51,38 @@ return [
             'total' => 'Total'
         ],
         'admins' => [
+            'title' => 'Backend - Administrators',
             'label' => 'Administrators',
             'users' => 'Users',
             'groups' => 'Groups',
             'login' => 'Last login'
         ],
         'logins' => [
+            'title' => 'Backend - Last logins',
             'label' => 'Last logins'
         ],
         'server' => [
+            'title' => 'Backend - Server info',
             'label' => 'Server info',
             'host' => 'Host',
             'ip' => 'IP address',
             'os' => 'Operation system'
         ],
         'php' => [
+            'title' => 'Backend - PHP settings',
             'label' => 'PHP settings',
             'upload_limit' => 'Upload limit',
             'memory_limit' => 'Memory limit',
             'timezone' => 'Timezone'
         ],
         'rss' => [
+            'title' => 'Backend - RSS viewer',
             'label' => 'RSS viewer',
             'error' => 'The URL address is incorrect or',
             'refresh' => 'refresh page'
         ],
         'images' => [
+            'title' => 'Backend - Random images',
             'label' => 'Random images',
             'error' => 'The field can only contain numbers.',
             'simple' => 'Simple',

@@ -3,27 +3,22 @@ description = "Default layout"
 <!DOCTYPE html>
 <html>
     <head>
-        <title>G + J :: Greta & Jeremy Get Married!</title>
+        <title>G + J :: {{ this.page.title }}</title>
         <meta name="author" content="Jeremy Rimpo">
-        <meta name="keywords" content="Greta,Jeremy,wedding,Houston,Texas,June,2015,married,marry,marriage,registry,rsvp,bridesmaids,groomsmen,hotel,lodging">
+        <meta name="keywords" content="Greta, Jeremy, wedding, Houston, Texas, June, 2015, married, marry, marriage, registry, rsvp, bridesmaids, groomsmen, hotel, lodging">
         <meta http-equiv="content-language" content="en-us">
-        <meta property="og:title" content="G + J :: Greta & Jeremy Get Married!">
-        <meta property="og:site_name" content="G + J :: Greta & Jeremy Get Married!">
-        <meta property="og:url" content="http://www.gretaandjeremy.com">
-        <meta property="og:description" name="description" content="Greta Brannan and Jeremy Rimpo are getting married on June 20, 2015! See our story, check out celebration details, and find lodging info here. Hope you can join us in Houston!">
+        <meta property="og:title" content="G + J :: {{ this.page.meta_title }}">
+        <meta property="og:site_name" content="G + J :: Greta & Jeremy Wedding Site">
+        <meta property="og:url" content="{{ this.page.url }}">
+        <meta property="og:description" name="description" content="{{ this.page.description }}">
         <meta property="og:locale" content="en_US">
         <meta property="og:image" content="http://wgal1.gretaandjeremy.com/15.jpg">
         <meta property="og:image:type" content="image/jpg">
         <meta property="og:image:width" content="1200">
         <meta property="og:image:height" content="1600">
+        <meta name="robots" content="index, follow">
         <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.5">
         <link rel="icon" type="image/png" href="{{ 'assets/images/G+J.png'|theme }}" />
-
-    </head>
-    <body class="page-{{ this.page.id }} layout-{{ this.layout.id }}">
-        <script data-pace-options='{ "ajax": false, "resetartOnRequestAfter": false }' src="{{ ['assets/javascript/pace.min.js']|theme }}"></script>
-        <link href='{{ ['assets/css/pace.css']|theme }}' rel='stylesheet' type='text/css'>
-        <script src="{{ ['assets/javascript/picturefill.min.js']|theme }}" async></script>
         <script>
           (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
           (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
@@ -36,6 +31,11 @@ description = "Default layout"
           ga('send', 'pageview');
         
         </script>
+    </head>
+    <body class="page-{{ this.page.id }} layout-{{ this.layout.id }}">
+        <script data-pace-options='{ "ajax": false, "resetartOnRequestAfter": false }' src="{{ ['assets/javascript/pace.min.js']|theme }}"></script>
+        <link href='{{ ['assets/css/pace.css']|theme }}' rel='stylesheet' type='text/css'>
+        <script src="{{ ['assets/javascript/picturefill.min.js']|theme }}" async></script>
         <img id="loading-logo" class="img-responsive" src="{{ 'assets/images/G+J-top.png' | theme }}" style="position:absolute;margin:auto;top:0;bottom:0;left:0;right:0;">
         <!--[if lt IE 9]>
             <link href="{{ ['assets/less/local.ie8.less']|theme }}" rel="stylesheet" type='text/css'>

@@ -1,14 +1,29 @@
-title = "Welcome :: June 20, 2015"
+title = "Greta & Jeremy Get Married!"
 url = "/"
 layout = "default"
+description = "Greta Brannan and Jeremy Rimpo are getting married on June 20, 2015! See our story, check out wedding celebration details, and find lodging info here. Hope you can join us in Houston!"
 hidden = "0"
+meta_title = "Greta & Jeremy Get Married!"
+meta_description = "Greta Brannan and Jeremy Rimpo are getting married on June 20, 2015! See our story, check out wedding celebration details, and find lodging info here. Hope you can join us in Houston!"
 ==
 <?php
 function onSubmit()
 {
     $data = Input::all();
-    $rules = ['name' => 'required', 'password' => 'required', 'attending' => 'required|digits_between:1,4'];
-    $msgs = ['required' => 'You must enter something here.','digits_between' => 'Right now we\'re expecting 1-4 attendees!'];
+    if ($newdata = preg_replace('/&/', '+', $data['name'])) {
+        $data['subjectName'] = $newdata;
+    } else $data['subjectName'] = $data['name'];
+    $rules = ['name' => 'required',
+        'password' => 'required',
+        'attending' => 'required|digits_between:0,8',
+        'children' => 'digits_between:0,8',
+        'email' => 'email'
+    ];
+    $msgs = [
+        'required' => 'You must enter something here.',
+        'digits_between' => 'Right now we\'re expecting a maximum of 8 attendees with up to 8 kids!',
+        'email' => 'You entered an email, but it doesn\'t look valid!'
+    ];
     $v = Validator::make($data, $rules, $msgs);
 
     if ($v->fails())
@@ -20,20 +35,27 @@ function onSubmit()
         if (md5(post('password')) === '792ea141e9f690dd1092d9bcf93b55b0') {
             Mail::queue('emails.rsvp', $data, function($message)
             {
-                $message->from('wedding@gretaandjeremy.com', post('name'));
-    
-                $message->to('us@gretaandjeremy.com')->subject('RSVP Received: '.post('name'));
-    
+                $email = Input::has('email') ? Input::get('email') : 'wedding@gretaandjeremy.com';
+                $message->from($email, Input::get('name'));
+                $message->to('us@gretaandjeremy.com');
             });
     
             $this['result'] = ['success' => 'RSVP Received! See you there!'];
+            if (Input::has('email')) {
+                Mail::queue('emails.rsvp.confirm', $data, function($message)
+                {
+                    $message->from('us@gretaandjeremy.com');
+                    $message->to(Input::get('email'));
+                });
+            }
             Flash::success('RSVP Received! See you there!');
             return;
         } else {
-            $this['result'] = ['error' => 'Password didn\'t match.'];
-            Flash::error('Password didn\'t match.');
+            $this['result'] = ['error' => 'The passphrase you entered didn\'t work, please check the information card you received with your invitation!'];
+            Flash::error('The passphrase you entered didn\'t work, please check the information card you received with your invitation!');
             return;
         }
+        
     }
     
     $this['result'] = ['error' => 'Something didn\'t work!'];

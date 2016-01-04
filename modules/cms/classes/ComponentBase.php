@@ -85,8 +85,8 @@ abstract class ComponentBase extends Extendable
     public function __construct(CodeBase $cmsObject = null, $properties = [])
     {
         if ($cmsObject !== null) {
-            $this->controller = $cmsObject->controller;
             $this->page = $cmsObject;
+            $this->controller = $cmsObject->controller;
         }
 
         $this->properties = $this->validateProperties($properties);
@@ -108,7 +108,7 @@ abstract class ComponentBase extends Extendable
      */
     public function getPath()
     {
-        return plugins_path().$this->dirName;
+        return plugins_path() . $this->dirName;
     }
 
     /**
@@ -134,43 +134,15 @@ abstract class ComponentBase extends Extendable
     }
 
     /**
-     * Dynamically handle calls into the controller instance.
-     * @param string $method
-     * @param array $parameters
-     * @return mixed
-     */
-    public function __call($method, $parameters)
-    {
-        if (method_exists($this, $method)) {
-            return call_user_func_array([$this, $method], $parameters);
-        }
-
-        if (method_exists($this->controller, $method)) {
-            return call_user_func_array([$this->controller, $method], $parameters);
-        }
-
-        throw new CmsException(Lang::get('cms::lang.component.method_not_found', [
-            'name' => get_class($this),
-            'method' => $method
-        ]));
-    }
-
-    /**
-     * Returns the component's alias, used by __SELF__
-     */
-    public function __toString()
-    {
-        return $this->alias;
-    }
-
-    /**
      * Renders a requested partial in context of this component,
      * see Cms\Classes\Controller@renderPartial for usage.
      */
     public function renderPartial()
     {
         $this->controller->setComponentContext($this);
-        return call_user_func_array([$this->controller, 'renderPartial'], func_get_args());
+        $result = call_user_func_array([$this->controller, 'renderPartial'], func_get_args());
+        $this->controller->setComponentContext(null);
+        return $result;
     }
 
     /**
@@ -244,6 +216,7 @@ abstract class ComponentBase extends Extendable
      * Sets an external property name.
      * @param string $name Property name
      * @param string $extName External property name
+     * @return string
      */
     public function setExternalPropertyName($name, $extName)
     {
@@ -276,5 +249,39 @@ abstract class ComponentBase extends Extendable
         }
 
         return $default;
+    }
+
+    //
+    // Magic methods
+    //
+
+    /**
+     * Dynamically handle calls into the controller instance.
+     * @param string $method
+     * @param array $parameters
+     * @return mixed
+     */
+    public function __call($method, $parameters)
+    {
+        if (method_exists($this, $method)) {
+            return call_user_func_array([$this, $method], $parameters);
+        }
+
+        if (method_exists($this->controller, $method)) {
+            return call_user_func_array([$this->controller, $method], $parameters);
+        }
+
+        throw new CmsException(Lang::get('cms::lang.component.method_not_found', [
+            'name' => get_class($this),
+            'method' => $method
+        ]));
+    }
+
+    /**
+     * Returns the component's alias, used by __SELF__
+     */
+    public function __toString()
+    {
+        return $this->alias;
     }
 }

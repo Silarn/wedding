@@ -7,15 +7,28 @@ return [
         'author' => 'Gergő Szabó'
     ],
     'settings' => [
-        'sidebar_description' => 'Sol kısayol bloğunda açıklamaları gizle.',
-        'focus_searchfield' => 'Otomatik olarak arama alanına odaklan.',
-        'virtual_keyboard' => 'Sanal klavyeyi aktifleştir.',
-        'more_themes' => 'Hide the "Find more themes..." link.',
+        'search_label' => 'Otomatik olarak arama alanına odaklan.',
+        'search_comment' => 'Öncelikle ikinci kenar çubuğundaki listeleri içinde.',
+        'avatar_label' => 'Yuvarlak profil resmi yerine küp biri.',
+        'avatar_comment' => 'Avatar sadece üst menüde değiştirir.',
+        'clearbutton_label' => 'Add the clear button to input fields.',
+        'clearbutton_comment' => 'It works only by simple text fields.',
+        'keyboard_label' => 'Sanal klavyeyi aktifleştir.',
+        'keyboard_comment' => 'Sadece basit metin alanları ile çalışır.',
+        'sidebar_desc_label' => 'Sol kısayol bloğunda açıklamaları gizle.',
+        'sidebar_desc_comment' => 'Kenar çubuğunda menüler açıklamasını gizle.',
+        'sidebar_search_label' => 'Kenar çubuğunda arama alanını gizleyin.',
+        'sidebar_search_comment' => 'Kenar çubuğunda menüler açıklamasını gizle.',
+        'media_label' => 'Üst menüde Medya bağlantısını gizleyin.',
+        'media_comment' => 'Hala mevcut ama göstermiyor.',
+        'themes_label' => 'Hide the "Medanis Tema..." link.',
         'themes_comment' => 'Located on Front-end theme page.',
-        'comment' => 'Sadece Ayarlar sayfalarında çalışır.'
+        'delete_plugin_label' => 'Ekim Demo eklentisi silin.',
+        'delete_plugin_comment' => 'All files will be removed permanently.'
     ],
     'widgets' => [
         'system' => [
+            'title' => 'Backend - Sistem Durumu',
             'label' => 'Sistem Durumu',
             'webpage' => 'Web site',
             'updates' => 'Güncellemeler',
@@ -23,12 +36,14 @@ return [
             'themes' => 'Temalar'
         ],
         'version' => [
+            'title' => 'Backend - Versiyonlar',
             'label' => 'Versiyonlar',
             'cms' => 'CMS',
             'php' => 'PHP',
             'gd' => 'GD'
         ],
         'logs' => [
+            'title' => 'Backend - Olay Kayıtları',
             'label' => 'Olay Kayıtları',
             'access' => 'Erişim',
             'event' => 'Olay',
@@ -36,32 +51,38 @@ return [
             'total' => 'Toplam'
         ],
         'admins' => [
+            'title' => 'Backend - Yöneticiler',
             'label' => 'Yöneticiler',
             'users' => 'Kullanıcılar',
             'groups' => 'Gruplar',
             'login' => 'Son giriş'
         ],
         'logins' => [
+            'title' => 'Backend - Son girişler',
             'label' => 'Son girişler'
         ],
         'server' => [
+            'title' => 'Backend - Server bilgisi',
             'label' => 'Server bilgisi',
             'host' => 'Sunucu',
             'ip' => 'IP adresi',
             'os' => 'İşletim sistemi'
         ],
         'php' => [
+            'title' => 'Backend - PHP ayarları',
             'label' => 'PHP ayarları',
             'upload_limit' => 'Yükleme limiti',
             'memory_limit' => 'Hafıza limiti',
             'timezone' => 'Zaman dilimi'
         ],
         'rss' => [
+            'title' => 'Backend - RSS görüntüleyici',
             'label' => 'RSS görüntüleyici',
             'error' => 'URL adresi yanlış veya',
             'refresh' => 'sayfayı yenile'
         ],
         'images' => [
+            'title' => 'Backend - Rastgele Resim',
             'label' => 'Rastgele Resim',
             'error' => 'Bu alana sadece sayı girebilirsiniz.',
             'simple' => 'Basit',

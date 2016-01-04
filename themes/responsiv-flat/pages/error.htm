@@ -1,20 +1,24 @@
-title = "Error page (500)"
+title = "Server Explosion :: 500"
 url = "/error"
-layout = "default"
+layout = "error"
+description = "This is a server error (500). Please contact j@gretaandjeremy.com."
+hidden = "0"
+meta_title = "500 Error"
+meta_description = "This is a server error (500). Please contact j@gretaandjeremy.com."
 ==
-<div class="jumbotron">
-    <div class="container">
+<div class="container-fluid">
+    <section id="error">
         <div class="row">
             <div class="col-xs-2 text-center">
                 <br />
-                <img src="{{ 'assets/images/icons/svg/toilet-paper.svg'|theme }}" alt="">
+                <img src="{{ 'assets/images/G+J.png'|theme }}" alt="">
             </div>
             <div class="col-xs-10">
-                <h1>Clean up on aisle three!</h1>
-                <p>We're very sorry, but something went wrong and the page cannot be displayed due to a <em>messy error</em>.</p>
-                <p>Don't worry, our specially programmed robotic workers have been deployed to clean things up.</p>
+                <h1>You just had to find it, didn't you!</h1>
+                <p>You just did something that caused the server to throw a fit.</p>
+                <p>If you were just trying out random URLs, congratulations! If you were actually trying to go to something important, <a href="mailto:j@gretaandjeremy.com">please let me know</a>!</p>
                 <p><small><em>Error code: 500</em></small>
             </div>
         </div>
-    </div>
+    </section>
 </div>

@@ -41,7 +41,7 @@
                 background: @color-list-hover;
             }
 
-            &.active a {
+            &.active > a {
                 background: @color-list-active;
                 position: relative;
                 &:after {
@@ -151,6 +151,58 @@
                 }
             }
 
+            > div.controls {
+                position: absolute;
+                right: 19px;
+                top: 6px;
+
+                .dropdown {
+                    width: 14px;
+                    height: 21px;
+
+                    &.open a.control {
+                        display: block!important; 
+                        &:before {
+                            visibility: visible;
+                            display: block;
+                        }
+                    }
+                }
+
+                a.control {
+                    color: @color-text-title;
+                    font-size: 14px;
+                    visibility: hidden;
+                    overflow: hidden;
+                    width: 14px;
+                    height: 21px;
+                    display: none;
+                    text-decoration: none;
+                    cursor: pointer;
+                    padding: 0;
+                    .opacity(0.5);
+                    &:before {
+                        visibility: visible;
+                        display: block;
+                        margin-right: 0;
+                    }
+
+                    &:hover {
+                        .opacity(1);
+                    }
+                }
+            }
+
+            &:hover {
+                > div.controls, > a.control {
+                    display: block!important;
+
+                    > a.control {
+                        display: block!important;
+                    }
+                }
+            }
+
             .checkbox {
                 position: absolute;
                 top: 13px;
@@ -167,7 +219,29 @@
         }
     }
 
+    &.single-line {
+        ul {
+            li a span.title {
+                text-overflow: ellipsis; 
+                overflow: hidden;
+                white-space: nowrap;
+            }
+        }
+    }
+
     &.hero {
+        .a-hover() {
+            background: @color-filelist-hero-hover-bg;
+            border-bottom: 1px solid @color-filelist-hero-hover-bg!important;
+            span.title, span.description {
+                color: @color-filelist-hero-hover-text!important;
+            }
+
+            .list-icon {
+                color: @color-filelist-hero-hover-text!important;
+            }
+        }
+
         ul {
             li {
                 background: @color-filelist-hero-item-bg;
@@ -184,12 +258,16 @@
                         color: @color-filelist-title-hero;
                     }
 
+                    .list-icon {
+                        position: absolute;
+                        left: 14px;
+                        top: 20px;
+                        font-size: 22px;
+                        color: #b7c0c2;
+                    }
+
                     &:hover {
-                        background: @color-filelist-hero-hover-bg;
-                        border-bottom: 1px solid @color-filelist-hero-hover-bg!important;
-                        span.title, span.description {
-                            color: @color-filelist-hero-hover-text!important;
-                        }
+                        .a-hover();
                     }
                 }
 
@@ -233,11 +311,46 @@
                     padding-bottom: 6px;
                     border-bottom: 1px solid @color-panel-light;
                 }
+
+                > div.controls {
+                    display: none;
+                    position: absolute;
+                    right: 16px;
+                    top: 15px;
+
+                    > a.control {
+                        width: 16px;
+                        height: 23px;
+                        background: transparent;
+                        overflow: hidden;
+                        display: inline-block;
+                        color: @color-filelist-hero-hover-text!important;
+                        padding: 0;
+
+                        &:before {
+                            font-size: 17px;
+                        }
+                    }
+                }
+
+                &:hover > div.controls {
+                    display: block;
+                }
             }
 
             > li.group {
                 > ul > li > a {
                     padding-left: 66px;
+                }
+            }
+        }
+
+        &.single-level {
+            ul li:hover {
+                background: @color-filelist-hero-hover-bg;
+
+                > a {
+                    .a-hover();
                 }
             }
         }

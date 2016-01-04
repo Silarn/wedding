@@ -43,8 +43,9 @@ trait HasOneOrMany
     {
         $model = parent::create($attributes);
 
-        if ($sessionKey !== null)
+        if ($sessionKey !== null) {
             $this->add($model, $sessionKey);
+        }
 
         return $model;
     }
@@ -57,6 +58,13 @@ trait HasOneOrMany
         if ($sessionKey === null) {
             $model->setAttribute($this->getPlainForeignKey(), $this->parent->getKey());
             $model->save();
+
+            /*
+             * Use the opportunity to set the relation in memory
+             */
+            if ($this instanceof HasOne) {
+                $this->parent->setRelation($this->relationName, $model);
+            }
         }
         else {
             $this->parent->bindDeferred($this->relationName, $model, $sessionKey);
@@ -71,6 +79,13 @@ trait HasOneOrMany
         if ($sessionKey === null) {
             $model->setAttribute($this->getPlainForeignKey(), null);
             $model->save();
+
+            /*
+             * Use the opportunity to set the relation in memory
+             */
+            if ($this instanceof HasOne) {
+                $this->parent->setRelation($this->relationName, null);
+            }
         }
         else {
             $this->parent->unbindDeferred($this->relationName, $model, $sessionKey);

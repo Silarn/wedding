@@ -15,7 +15,7 @@ class ComponentHelpers
      * @param mixed $component The component object
      * @param boolean $addAliasProperty Determines if the Alias property should be added to the result.
      * @param boolean $returnArray Determines if the method should return an array.
-     * @return string 
+     * @return string
      */
     public static function getComponentsPropertyConfig($component, $addAliasProperty = true, $returnArray = false)
     {
@@ -29,6 +29,7 @@ class ComponentHelpers
                 'type'                  => 'string',
                 'validationPattern'     => '^[a-zA-Z]+[0-9a-z\_]*$',
                 'validationMessage'     => Lang::get('cms::lang.component.validation_message'),
+                'required'              => true,
                 'showExternalParam'     => false
             ];
             $result[] = $property;
@@ -53,7 +54,7 @@ class ComponentHelpers
             /*
              * Translate human values
              */
-            $translate = ['title', 'description', 'options'];
+            $translate = ['title', 'description', 'options', 'group'];
             foreach ($property as $name => $value) {
                 if (!in_array($name, $translate)) {
                     continue;
@@ -100,7 +101,7 @@ class ComponentHelpers
     /**
      * Returns a component name.
      * @param mixed $component The component object
-     * @return string 
+     * @return string
      */
     public static function getComponentName($component)
     {
@@ -115,7 +116,7 @@ class ComponentHelpers
     /**
      * Returns a component description.
      * @param mixed $component The component object
-     * @return string 
+     * @return string
      */
     public static function getComponentDescription($component)
     {

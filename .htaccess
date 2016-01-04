@@ -79,6 +79,7 @@
     AddType video/ogg                                   ogv
     AddType video/webm                                  webm
     AddType video/x-flv                                 flv
+    AddType video/quicktime								qt mov 
 
     # Serving `.ico` image files with a different media type
     # prevents Internet Explorer from displaying then as images:
@@ -175,9 +176,11 @@
     RewriteCond %{REQUEST_URI} !\.mp4
     RewriteCond %{REQUEST_URI} !\.webm
     RewriteCond %{REQUEST_URI} !\.ogg
-	RewriteCond %{REQUEST_URI} !\.htc
+    RewriteCond %{REQUEST_URI} !\.htc
     RewriteCond %{REQUEST_URI} !docs/.*
     RewriteCond %{REQUEST_URI} !themes/.*
+    RewriteCond %{REQUEST_URI} !IMG_0147\.MOV
+    RewriteCond %{REQUEST_URI} !jmr\.php
     RewriteRule ^ index.php [L,NC]
 
     ##
@@ -185,7 +188,6 @@
     ##
     RewriteCond %{REQUEST_FILENAME} !-f
     RewriteRule ^ index.php [L]
-
 </IfModule>
 
 #Gzip

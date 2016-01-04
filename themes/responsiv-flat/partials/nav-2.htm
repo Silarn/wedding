@@ -1,0 +1,81 @@
+==
+{# Note: Only one levels of sublinks are supported by Bootstrap 3 #}
+{% set
+    links = {
+        's2':       ['/#story', 'Our Story'],
+        's3':       ['/#gallery', 'Gallery'],
+        's4':       ['/#people', 'The Cast'],
+        's5':       ['/#events', 'Locations'],
+        's7':       ['/#travel', 'To Stay | Do'],
+        's6':       ['/#registry', 'Registry'],
+        's8':       ['/#rsvp', 'RSVP'],
+    }
+%}
+
+{# 
+        'pages': {
+            name: 'Pages',
+            sublinks: {
+                'w2':         ['#section-welcome', 'Home'],
+                'ss2':       ['#section-2', 'Section 2'],
+                'ss3':       ['#section-3', 'Section 3'],
+                'ss4':       ['#section-4', 'Section 4'],
+                'ss5':       ['#section-5', 'Section 5'],
+                'ss6':       ['#section-6', 'Section 6'],
+                'ss7':       ['#section-7', 'Section 7'],
+            },
+        },
+#}
+
+{% macro render_menu(links) %}
+    {% for code, link in links %}
+        <li class="{{ code == currentPage ? 'active' }} {{ link.sublinks ? 'dropdown' }}">
+            <a
+                href="{{ link.sublinks ? '#' : (link.page ?: link[0]) }}"
+                {% if link.sublinks %}data-toggle="dropdown"{% endif %}
+                class="{{ link.sublinks ? 'dropdown-toggle' }}"
+            >
+                {{ link.name ?: link[1] }}
+                {% if link.sublinks %}<span class="caret"></span>{% endif %}
+            </a>
+            {% if link.sublinks %}
+                <span class="dropdown-arrow"></span>
+                <ul class="dropdown-menu">
+                    {{ _self.render_menu(link.sublinks) }}
+                </ul>
+            {% endif %}
+        </li>
+    {% endfor %}
+{% endmacro %}
+
+{% import _self as nav %}
+
+<nav id="layout-nav" class="navbar navbar-inverse" role="navigation">
+    <div class="container-fluid">
+        <div class="navbar-header">
+            <a href="{{ 'home'|page }}" class="navbar-brand visible-xs-block" onclick="$.scrollTo('/#welcome', 1000, {offset: {top:-50}, onAfter: function() {
+                    
+                    var target = $('#welcome')[0];
+                    var original_id = target.id;
+                    target.id = null;
+                    location.hash = '#welcome';
+                    target.id = original_id;
+    
+                }}); return false;"><img class="img-responsive" src="{{'assets/images/G+J-menu.png' | theme}}" style="max-height: 18px; display: inline;"></a>
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-main-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+        </div>
+        <div class="collapse navbar-collapse navbar-main-collapse">
+            <ul class="nav navbar-nav">
+                <li class="hidden-xs">
+                    <a href="/"><img class="img-responsive" src="{{'assets/images/G+J-menu.png' | theme}}" style="max-height: 18px; display: inline; margin-top: -5px;"></a>
+                </li>
+                {{ nav.render_menu(links) }}
+            </ul>
+        </div>
+    </div>
+</nav>

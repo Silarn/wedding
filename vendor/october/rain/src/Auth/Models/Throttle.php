@@ -1,8 +1,8 @@
 <?php namespace October\Rain\Auth\Models;
 
 use Carbon\Carbon;
+use October\Rain\Auth\AuthException;
 use October\Rain\Database\Model;
-use Exception;
 use DateTime;
 
 /**
@@ -171,15 +171,16 @@ class Throttle extends Model
     /**
      * Check user throttle status.
      * @return bool
+     * @throws AuthException
      */
     public function check()
     {
         if ($this->is_banned) {
-            throw new Exception(sprintf('User [%s] has been banned.', $this->user->getLogin()));
+            throw new AuthException(sprintf('User [%s] has been banned.', $this->user->getLogin()));
         }
 
         if ($this->checkSuspended()) {
-            throw new Exception(sprintf('User [%s] has been suspended.', $this->user->getLogin()));
+            throw new AuthException(sprintf('User [%s] has been suspended.', $this->user->getLogin()));
         }
 
         return true;
@@ -261,28 +262,5 @@ class Throttle extends Model
     public function getDates()
     {
         return array_merge(parent::getDates(), ['last_attempt_at', 'suspended_at', 'banned_at']);
-    }
-
-    /**
-     * Convert the model instance to an array.
-     * @return array
-     */
-    public function toArray()
-    {
-        $result = parent::toArray();
-
-        if (isset($result['is_suspended']))
-            $result['is_suspended'] = $this->getIsSuspendedAttribute($result['is_suspended']);
-
-        if (isset($result['is_banned']))
-            $result['is_banned'] = $this->getIsBannedAttribute($result['is_banned']);
-
-        if (isset($result['last_attempt_at']) && $result['last_attempt_at'] instanceof DateTime)
-            $result['last_attempt_at'] = $result['last_attempt_at']->format('Y-m-d H:i:s');
-
-        if (isset($result['suspended_at']) && $result['suspended_at'] instanceof DateTime)
-            $result['suspended_at'] = $result['suspended_at']->format('Y-m-d H:i:s');
-
-        return $result;
     }
 }

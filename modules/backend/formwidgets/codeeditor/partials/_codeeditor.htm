@@ -15,6 +15,7 @@
         data-highlight-active-line="<?= $highlightActiveLine ?>"
         data-use-soft-tabs="<?= $useSoftTabs ?>"
         data-show-gutter="<?= $showGutter ? 'true' : 'false' ?>"
+        data-read-only="<?= $readOnly ? 'true' : 'false' ?>"
         data-language="<?= $language ?>"
         data-margin="<?= $margin ?>"
         data-vendor-path="<?= URL::asset('/modules/backend/formwidgets/codeeditor/assets/vendor/ace') ?>">
@@ -23,13 +24,13 @@
                 <li class="fullscreen-enable">
                     <a href="javascript:;">
                         <i class="icon-desktop"></i>
-                        <abbr title="ctrl+alt+f"><?= e(trans('cms::lang.editor.enter_fullscreen')) ?></abbr>
+                        <abbr title="ctrl+shift+f"><?= e(trans('cms::lang.editor.enter_fullscreen')) ?></abbr>
                     </a>
                 </li>
                 <li class="fullscreen-disable">
                     <a href="javascript:;">
                         <i class="icon-desktop"></i>
-                        <abbr title="ctrl+alt+f or esc"><?= e(trans('cms::lang.editor.exit_fullscreen')) ?></abbr>
+                        <abbr title="ctrl+shift+f or esc"><?= e(trans('cms::lang.editor.exit_fullscreen')) ?></abbr>
                     </a>
                 </li>
             </ul>

@@ -14,7 +14,6 @@
     var Base = $.oc.foundation.base,
         BaseProto = Base.prototype
 
-
     // RICHEDITOR CLASS DEFINITION
     // ============================
 
@@ -27,20 +26,24 @@
         this.$editor     = null
         this.redactor    = null
 
+        $.oc.foundation.controlUtils.markDisposable(element)
+
         Base.call(this)
 
-        this.init();
+        this.init()
     }
 
     RichEditor.prototype = Object.create(BaseProto)
     RichEditor.prototype.constructor = RichEditor
 
     RichEditor.DEFAULTS = {
+        dataLocker: null,
+        linksHandler: null,
         stylesheet: null,
         fullpage: false
     }
 
-    RichEditor.prototype.init = function (){
+    RichEditor.prototype.init = function() {
         var self = this;
 
         this.$el.one('dispose-control', this.proxy(this.dispose))
@@ -69,12 +72,14 @@
             imageResizable: true,
             buttonSource: true,
             removeDataAttr: false,
+            toolbarFixed: false,
             syncBeforeCallback: this.proxy(this.onSyncBefore),
             focusCallback: this.proxy(this.onFocus),
             blurCallback: this.proxy(this.onBlur),
             keydownCallback: this.proxy(this.onKeydown),
             enterCallback: this.proxy(this.onEnter),
             changeCallback: this.proxy(this.onChange),
+            pageLinksHandler: this.options.linksHandler,
             initCallback: function() { self.build(this) }
         }
 
@@ -82,8 +87,8 @@
             redactorOptions.fullpage = true
         }
 
-        redactorOptions.plugins = ['fullscreen', 'figure', 'table', 'mediamanager']
-        redactorOptions.buttons = ['formatting', 'bold', 'italic', 'unorderedlist', 'orderedlist', 'link', 'horizontalrule', 'html'],
+        redactorOptions.plugins = ['fullscreen', 'figure', 'table', 'pagelinks', 'mediamanager']
+        redactorOptions.buttons = ['html', 'formatting', 'bold', 'italic', 'alignment', 'unorderedlist', 'orderedlist', 'link', 'horizontalrule'],
 
         this.$textarea.redactor(redactorOptions)
 
@@ -94,7 +99,19 @@
     RichEditor.prototype.dispose = function() {
         this.unregisterHandlers()
 
-        this.$textarea.redactor('core.destroy');
+        // Release clickedElement reference inside redactor.js
+        $(document).trigger('mousedown')
+
+        this.redactor.core.destroy()
+
+        // The figure plugin keeps references to the editor,
+        // DOM elements and event handlers. It was hacked and
+        // extended with the destroy() method.
+        if (this.redactor.figure) {
+            this.redactor.figure.destroy()
+            this.redactor.figure = null
+        }
+
         this.$el.removeData('oc.richEditor')
 
         this.options = null
@@ -103,6 +120,10 @@
         this.$form = null
         this.$dataLocker = null
         this.$editor = null
+
+        this.redactor.$textarea = null
+        this.redactor.$element = null
+
         this.redactor = null
 
         BaseProto.dispose.call(this)
@@ -148,8 +169,8 @@
     }
 
     RichEditor.prototype.sanityCheckContent = function() {
-        // First and last elements should always be paragraphs or pre
-        var safeElements = 'p, h1, h2, h3, h4, h5, pre, figure';
+        // First and last elements should always be paragraphs, lists or pre
+        var safeElements = 'p, h1, h2, h3, h4, h5, pre, figure, ol, ul';
 
         if (!this.$editor.children(':last-child').is(safeElements)) {
             this.$editor.append('<p><br></p>')
@@ -172,7 +193,7 @@
         var $domTree = $('<div>'+container.html+'</div>')
 
         // This code removes Redactor-specific attributes and tags from the code.
-        // It seems to be a known problem with Redactor, try googling for 
+        // It seems to be a known problem with Redactor, try googling for
         // "data-redactor-tag" or "redactor-invisible-space" (with quotes)
         $('*', $domTree).removeAttr('data-redactor-tag')
 
@@ -196,7 +217,7 @@
     }
 
     RichEditor.prototype.onShowFigureToolbar = function($figure, $toolbar) {
-        // Deal with the case when the toolbar top has negative 
+        // Deal with the case when the toolbar top has negative
         // value
         var toolbarTop = $figure.position().top - $toolbar.height() - 10
 
@@ -224,7 +245,8 @@
                 // If the paragraph is empty, remove it.
                 if ($.trim($paragraph.text()).length == 0)
                     $paragraph.remove()
-            } else {
+            }
+            else {
                 // If block is inserted into another UI block, insert it after the existing block.
                 var $closestBlock = $(current).closest('[data-ui-block]')
                 if ($closestBlock.length > 0) {
@@ -344,11 +366,11 @@
     }
 
     RichEditor.prototype.onFocus = function() {
-        this.$el.addClass('editor-focus') 
+        this.$el.addClass('editor-focus')
     }
 
     RichEditor.prototype.onBlur = function() {
-        this.$el.removeClass('editor-focus') 
+        this.$el.removeClass('editor-focus')
     }
 
     RichEditor.prototype.onKeydown = function(ev) {

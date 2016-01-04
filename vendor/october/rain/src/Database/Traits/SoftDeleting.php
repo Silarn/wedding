@@ -21,17 +21,30 @@ trait SoftDeleting
     {
         static::addGlobalScope(new SoftDeletingScope);
 
-        static::restoring(function($model){
+        static::restoring(function($model) {
             $model->fireEvent('model.beforeRestore');
-            if ($model->methodExists('beforeRestore'))
+            if ($model->methodExists('beforeRestore')) {
                 $model->beforeRestore();
+            }
         });
 
-        static::restored(function($model){
+        static::restored(function($model) {
             $model->fireEvent('model.afterRestore');
-            if ($model->methodExists('afterRestore'))
+            if ($model->methodExists('afterRestore')) {
                 $model->afterRestore();
+            }
         });
+    }
+
+    /**
+     * Helper method to check if the model is currently
+     * being hard or soft deleted, useful in events.
+     *
+     * @return bool
+     */
+    public function isSoftDelete()
+    {
+        return !$this->forceDeleting;
     }
 
     /**
@@ -55,14 +68,11 @@ trait SoftDeleting
      */
     protected function performDeleteOnModel()
     {
-        if ($this->forceDeleting)
-        {
-            $this->withTrashed()->where($this->getKeyName(), $this->getKey())->forceDelete();
+        if ($this->forceDeleting) {
+            return $this->withTrashed()->where($this->getKeyName(), $this->getKey())->forceDelete();
         }
-        else
-        {
-            return $this->runSoftDelete();
-        }
+
+        return $this->runSoftDelete();
     }
 
     /**
@@ -89,8 +99,7 @@ trait SoftDeleting
         // If the restoring event does not return false, we will proceed with this
         // restore operation. Otherwise, we bail out so the developer will stop
         // the restore totally. We will clear the deleted timestamp and save.
-        if ($this->fireModelEvent('restoring') === false)
-        {
+        if ($this->fireModelEvent('restoring') === false) {
             return false;
         }
 
@@ -113,7 +122,7 @@ trait SoftDeleting
      */
     public function trashed()
     {
-        return ! is_null($this->{$this->getDeletedAtColumn()});
+        return !is_null($this->{$this->getDeletedAtColumn()});
     }
 
     /**
@@ -181,6 +190,5 @@ trait SoftDeleting
     {
         return $this->getTable().'.'.$this->getDeletedAtColumn();
     }
-
 
 }

@@ -1,4 +1,4 @@
-define("ace/snippets",["require","exports","module","ace/lib/oop","ace/lib/event_emitter","ace/lib/lang","ace/range","ace/anchor","ace/keyboard/hash_handler","ace/tokenizer","ace/lib/dom","ace/editor"], function(require, exports, module) {
+ace.define("ace/snippets",["require","exports","module","ace/lib/oop","ace/lib/event_emitter","ace/lib/lang","ace/range","ace/anchor","ace/keyboard/hash_handler","ace/tokenizer","ace/lib/dom","ace/editor"], function(require, exports, module) {
 "use strict";
 var oop = require("./lib/oop");
 var EventEmitter = require("./lib/event_emitter").EventEmitter;
@@ -16,7 +16,7 @@ var SnippetManager = function() {
 
 (function() {
     oop.implement(this, EventEmitter);
-    
+
     this.getTokenizer = function() {
         function TabstopToken(str, _, stack) {
             str = str.substr(1);
@@ -239,7 +239,7 @@ var SnippetManager = function() {
         var line = editor.session.getLine(cursor.row);
         var tabString = editor.session.getTabString();
         var indentString = line.match(/^\s*/)[0];
-        
+
         if (cursor.column < indentString.length)
             indentString = indentString.slice(0, cursor.column);
 
@@ -271,7 +271,7 @@ var SnippetManager = function() {
                 return;
 
             var value = tokens.slice(i + 1, i1);
-            var isNested = value.some(function(t) {return typeof t === "object"});          
+            var isNested = value.some(function(t) {return typeof t === "object"});
             if (isNested && !ts.value) {
                 ts.value = value;
             } else if (value.length && (!ts.value || typeof ts.value !== "string")) {
@@ -305,7 +305,7 @@ var SnippetManager = function() {
                     expanding[id] = null;
                 continue;
             }
-            
+
             var ts = tabstops[id];
             var arg = typeof ts.value == "string" ? [ts.value] : copyValue(ts.value);
             arg.unshift(i + 1, Math.max(0, i1 - i));
@@ -340,16 +340,16 @@ var SnippetManager = function() {
         var selectionId = editor.inVirtualSelectionMode && editor.selection.index;
         tabstopManager.addTabstops(tabstops, range.start, end, selectionId);
     };
-    
+
     this.insertSnippet = function(editor, snippetText) {
         var self = this;
         if (editor.inVirtualSelectionMode)
             return self.insertSnippetForSelection(editor, snippetText);
-        
+
         editor.forEachSelection(function() {
             self.insertSnippetForSelection(editor, snippetText);
         }, null, {keepOrder: true});
-        
+
         if (editor.tabstopManager)
             editor.tabstopManager.tabNext();
     };
@@ -358,7 +358,7 @@ var SnippetManager = function() {
         var scope = editor.session.$mode.$id || "";
         scope = scope.split("/").pop();
         if (scope === "html" || scope === "php") {
-            if (scope === "php" && !editor.session.$mode.inlinePhp) 
+            if (scope === "php" && !editor.session.$mode.inlinePhp)
                 scope = "html";
             var c = editor.getCursorPosition();
             var state = editor.session.getState(c.row);
@@ -374,7 +374,7 @@ var SnippetManager = function() {
                     scope = "php";
             }
         }
-        
+
         return scope;
     };
 
@@ -398,7 +398,7 @@ var SnippetManager = function() {
             editor.tabstopManager.tabNext();
         return result;
     };
-    
+
     this.expandSnippetForSelection = function(editor, options) {
         var cursor = editor.getCursorPosition();
         var line = editor.session.getLine(cursor.row);
@@ -454,10 +454,10 @@ var SnippetManager = function() {
         var snippetMap = this.snippetMap;
         var snippetNameMap = this.snippetNameMap;
         var self = this;
-        
-        if (!snippets) 
+
+        if (!snippets)
             snippets = [];
-        
+
         function wrapRegexp(src) {
             if (src && !/^\^?\(.*\)\$?$|^\\b$/.test(src))
                 src = "(?:" + src + ")";
@@ -514,7 +514,7 @@ var SnippetManager = function() {
             addSnippet(snippets);
         else if (Array.isArray(snippets))
             snippets.forEach(addSnippet);
-        
+
         this._signal("registerSnippets", {scope: scope});
     };
     this.unregister = function(snippets, scope) {
@@ -624,11 +624,11 @@ var TabstopManager = function(editor) {
         this.editor = null;
     };
 
-    this.onChange = function(e) {
-        var changeRange = e.data.range;
-        var isRemove = e.data.action[0] == "r";
-        var start = changeRange.start;
-        var end = changeRange.end;
+    this.onChange = function(delta) {
+        var changeRange = delta;
+        var isRemove = delta.action[0] == "r";
+        var start = delta.start;
+        var end = delta.end;
         var startRow = start.row;
         var endRow = end.row;
         var lineDif = endRow - startRow;
@@ -731,9 +731,9 @@ var TabstopManager = function(editor) {
         ts = this.tabstops[this.index];
         if (!ts || !ts.length)
             return;
-        
+
         this.selectedTabstop = ts;
-        if (!this.editor.inVirtualSelectionMode) {        
+        if (!this.editor.inVirtualSelectionMode) {
             var sel = this.editor.multiSelect;
             sel.toSingleRange(ts.firstNonLinked.clone());
             for (var i = ts.length; i--;) {
@@ -746,7 +746,7 @@ var TabstopManager = function(editor) {
         } else {
             this.editor.selection.setRange(ts.firstNonLinked);
         }
-        
+
         this.editor.keyBinding.addKeyboardHandler(this.keyboardHandler);
     };
     this.addTabstops = function(tabstops, start, end) {
@@ -765,7 +765,7 @@ var TabstopManager = function(editor) {
         var ranges = this.ranges;
         tabstops.forEach(function(ts, index) {
             var dest = this.$openTabstops[index] || ts;
-                
+
             for (var i = ts.length; i--;) {
                 var p = ts[i];
                 var range = Range.fromPoints(p.start, p.end || p.start);
@@ -792,7 +792,7 @@ var TabstopManager = function(editor) {
             }
             this.addTabstopMarkers(dest);
         }, this);
-        
+
         if (arg.length > 2) {
             if (this.tabstops.length)
                 arg.push(arg.splice(2, 1)[0]);
@@ -860,7 +860,7 @@ changeTracker.setPosition = function(row, column) {
 };
 changeTracker.update = function(pos, delta, $insertRight) {
     this.$insertRight = $insertRight;
-    this.pos = pos; 
+    this.pos = pos;
     this.onChange(delta);
 };
 
@@ -901,21 +901,13 @@ var Editor = require("./editor").Editor;
 
 });
 
-define("ace/ext/emmet",["require","exports","module","ace/keyboard/hash_handler","ace/editor","ace/snippets","ace/range","resources","resources","range","tabStops","resources","utils","actions","ace/config"], function(require, exports, module) {
+ace.define("ace/ext/emmet",["require","exports","module","ace/keyboard/hash_handler","ace/editor","ace/snippets","ace/range","resources","resources","range","tabStops","resources","utils","actions","ace/config","ace/config"], function(require, exports, module) {
 "use strict";
 var HashHandler = require("ace/keyboard/hash_handler").HashHandler;
 var Editor = require("ace/editor").Editor;
 var snippetManager = require("ace/snippets").snippetManager;
 var Range = require("ace/range").Range;
-var emmet;
-
-Editor.prototype.indexToPosition = function(index) {
-    return this.session.doc.indexToPosition(index);
-};
-
-Editor.prototype.positionToIndex = function(pos) {
-    return this.session.doc.positionToIndex(pos);
-};
+var emmet, emmetPath;
 function AceEmmetEditor() {}
 
 AceEmmetEditor.prototype = {
@@ -930,21 +922,24 @@ AceEmmetEditor.prototype = {
     },
     getSelectionRange: function() {
         var range = this.ace.getSelectionRange();
+        var doc = this.ace.session.doc;
         return {
-            start: this.ace.positionToIndex(range.start),
-            end: this.ace.positionToIndex(range.end)
+            start: doc.positionToIndex(range.start),
+            end: doc.positionToIndex(range.end)
         };
     },
     createSelection: function(start, end) {
+        var doc = this.ace.session.doc;
         this.ace.selection.setRange({
-            start: this.ace.indexToPosition(start),
-            end: this.ace.indexToPosition(end)
+            start: doc.indexToPosition(start),
+            end: doc.indexToPosition(end)
         });
     },
     getCurrentLineRange: function() {
-        var row = this.ace.getCursorPosition().row;
-        var lineLength = this.ace.session.getLine(row).length;
-        var index = this.ace.positionToIndex({row: row, column: 0});
+        var ace = this.ace;
+        var row = ace.getCursorPosition().row;
+        var lineLength = ace.session.getLine(row).length;
+        var index = ace.session.doc.positionToIndex({row: row, column: 0});
         return {
             start: index,
             end: index + lineLength
@@ -952,10 +947,10 @@ AceEmmetEditor.prototype = {
     },
     getCaretPos: function(){
         var pos = this.ace.getCursorPosition();
-        return this.ace.positionToIndex(pos);
+        return this.ace.session.doc.positionToIndex(pos);
     },
     setCaretPos: function(index){
-        var pos = this.ace.indexToPosition(index);
+        var pos = this.ace.session.doc.indexToPosition(index);
         this.ace.selection.moveToPosition(pos);
     },
     getCurrentLine: function() {
@@ -966,16 +961,17 @@ AceEmmetEditor.prototype = {
         if (end == null)
             end = start == null ? this.getContent().length : start;
         if (start == null)
-            start = 0;        
-        
+            start = 0;
+
         var editor = this.ace;
-        var range = Range.fromPoints(editor.indexToPosition(start), editor.indexToPosition(end));
+        var doc = editor.session.doc;
+        var range = Range.fromPoints(doc.indexToPosition(start), doc.indexToPosition(end));
         editor.session.remove(range);
-        
+
         range.end = range.start;
-        
+
         value = this.$updateTabstops(value);
-        snippetManager.insertSnippet(editor, value)
+        snippetManager.insertSnippet(editor, value);
     },
     getContent: function(){
         return this.ace.getValue();
@@ -1049,7 +1045,7 @@ AceEmmetEditor.prototype = {
                     lastZero = range.create(data.start, result);
                 }
 
-                return result
+                return result;
             },
             escape: function(ch) {
                 if (ch == '$') return '\\$';
@@ -1065,7 +1061,7 @@ AceEmmetEditor.prototype = {
         } else if (lastZero) {
             value = emmet.require('utils').replaceSubstring(value, '${0}', lastZero);
         }
-        
+
         return value;
     }
 };
@@ -1100,28 +1096,33 @@ var keymap = {
 var editorProxy = new AceEmmetEditor();
 exports.commands = new HashHandler();
 exports.runEmmetCommand = function(editor) {
-    editorProxy.setupContext(editor);
-    if (editorProxy.getSyntax() == "php")
-        return false;
-    var actions = emmet.require("actions");
-
-    if (this.action == "expand_abbreviation_with_tab") {
-        if (!editor.selection.isEmpty())
-            return false;
-    }
-    
-    if (this.action == "wrap_with_abbreviation") {
-        return setTimeout(function() {
-            actions.run("wrap_with_abbreviation", editorProxy);
-        }, 0);
-    }
-    
     try {
+        editorProxy.setupContext(editor);
+        if (editorProxy.getSyntax() == "php")
+            return false;
+        var actions = emmet.require("actions");
+
+        if (this.action == "expand_abbreviation_with_tab") {
+            if (!editor.selection.isEmpty())
+                return false;
+        }
+
+        if (this.action == "wrap_with_abbreviation") {
+            return setTimeout(function() {
+                actions.run("wrap_with_abbreviation", editorProxy);
+            }, 0);
+        }
+
+        var pos = editor.selection.lead;
+        var token = editor.session.getTokenAt(pos.row, pos.column);
+        if (token && /\btag\b/.test(token.type))
+            return false;
+
         var result = actions.run(this.action, editorProxy);
     } catch(e) {
         editor._signal("changeStatus", typeof e == "string" ? e : e.message);
         console.log(e);
-        result = false
+        result = false;
     }
     return result;
 };
@@ -1136,20 +1137,34 @@ for (var command in keymap) {
     });
 }
 
+exports.updateCommands = function(editor, enabled) {
+    if (enabled) {
+        editor.keyBinding.addKeyboardHandler(exports.commands);
+    } else {
+        editor.keyBinding.removeKeyboardHandler(exports.commands);
+    }
+};
+
+exports.isSupportedMode = function(modeId) {
+    return modeId && /css|less|scss|sass|stylus|html|php|twig|ejs|handlebars/.test(modeId);
+};
+
 var onChangeMode = function(e, target) {
     var editor = target;
     if (!editor)
         return;
-    var modeId = editor.session.$modeId;
-    var enabled = modeId && /css|less|scss|sass|stylus|twig|html|php/.test(modeId);
+    var enabled = exports.isSupportedMode(editor.session.$modeId);
     if (e.enableEmmet === false)
         enabled = false;
-    if (enabled)
-        editor.keyBinding.addKeyboardHandler(exports.commands);
-    else
-        editor.keyBinding.removeKeyboardHandler(exports.commands);
+    if (enabled) {
+        if (typeof emmetPath == "string") {
+            require("ace/config").loadModule(emmetPath, function() {
+                emmetPath = null;
+            });
+        }
+    }
+    exports.updateCommands(editor, enabled);
 };
-
 
 exports.AceEmmetEditor = AceEmmetEditor;
 require("ace/config").defineOptions(Editor.prototype, "editor", {
@@ -1162,11 +1177,13 @@ require("ace/config").defineOptions(Editor.prototype, "editor", {
     }
 });
 
-
-exports.setCore = function(e) {emmet = e;};
+exports.setCore = function(e) {
+    if (typeof e == "string")
+       emmetPath = e;
+    else
+       emmet = e;
+};
 });
-;
                 (function() {
-                    window.require(["ace/ext/emmet"], function() {});
+                    ace.require(["ace/ext/emmet"], function() {});
                 })();
-            

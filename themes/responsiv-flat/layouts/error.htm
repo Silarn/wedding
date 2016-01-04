@@ -1,0 +1,81 @@
+description = "Generic error template."
+==
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>G + J :: {{ this.page.title }}</title>
+        <meta name="author" content="Jeremy Rimpo">
+        <meta http-equiv="content-language" content="en-us">
+        <meta property="og:title" content="G + J :: {{ this.page.meta_title }}">
+        <meta property="og:site_name" content="G + J :: Greta & Jeremy Wedding Site">
+        <meta property="og:url" content="{{ this.page.url }}">
+        <meta property="og:description" name="description" content="{{ this.page.description }}">
+        <meta property="og:locale" content="en_US">
+        <meta name="robots" content="noindex, nofollow">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.5">
+        <link rel="icon" type="image/png" href="{{ 'assets/images/G+J.png'|theme }}" />
+    </head>
+    <body class="page-{{ this.page.id }} layout-{{ this.layout.id }}">
+        <!--[if lt IE 9]>
+            <link href="{{ ['assets/less/local.ie8.less']|theme }}" rel="stylesheet" type='text/css'>
+           <script>
+                document.createElement('header');
+                document.createElement('nav');
+                document.createElement('section');
+                document.createElement('article');
+                document.createElement('aside');
+                document.createElement('footer');
+            </script>
+        <![endif]-->
+        
+        <!-- Nav -->
+        <header id="layout-header" class="header-navbar">
+            <!-- Nav -->
+            {% partial "nav-2" %}
+        </header>
+        
+        <!-- Content -->
+        <div id="layout-content">
+            {% page %}
+        </div>
+        
+        {% styles %}
+        <script type="text/javascript">
+        WebFontConfig = {
+            google: { families: [ 'Droid+Sans:400,700:latin', 'Averia+Libre:400,700,400italic,700italic:latin', 'Roboto+Condensed:400italic,700italic,400,700:latin' ] }
+        };
+        (function() {
+            var wf = document.createElement('script');
+            wf.src = ('https:' == document.location.protocol ? 'https' : 'http') +
+              '://ajax.googleapis.com/ajax/libs/webfont/1/webfont.js';
+            wf.type = 'text/javascript';
+            wf.async = 'true';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(wf, s);
+        })();
+        </script>
+        <link href="{{ [
+            'assets/vendor/bootstrap/less/bootstrap.less', 'assets/less/local.less'
+        ]|theme }}" rel="stylesheet" type='text/css'>
+        
+        <!-- Scripts -->
+        <script src="{{ [
+            'assets/javascript/jquery.js',
+            'assets/vendor/bootstrap/js/transition.js',
+            'assets/vendor/bootstrap/js/alert.js',
+            'assets/vendor/bootstrap/js/button.js',
+            'assets/vendor/bootstrap/js/carousel.js',
+            'assets/vendor/bootstrap/js/collapse.js',
+            'assets/vendor/bootstrap/js/dropdown.js',
+            'assets/vendor/bootstrap/js/modal.js',
+            'assets/vendor/bootstrap/js/tooltip.js',
+            'assets/vendor/bootstrap/js/popover.js',
+            'assets/vendor/bootstrap/js/scrollspy.js',
+            'assets/vendor/bootstrap/js/tab.js',
+            'assets/vendor/bootstrap/js/affix.js',
+            ] | theme }}"></script>
+        {% framework extras %}
+        {% scripts %}
+
+    </body>
+</html>

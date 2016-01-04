@@ -42,10 +42,20 @@ class ListColumn
     public $sortable = true;
 
     /**
+     * @var bool If set to false, disables the default click behavior when the column is clicked.
+     */
+    public $clickable = true;
+
+    /**
      * @var string Model attribute to use for the display value, this will
      * override any $sqlSelect definition.
      */
     public $valueFrom;
+
+    /**
+     * @var string Specifies a default value when value is empty.
+     */
+    public $defaults;
 
     /**
      * @var string Custom SQL for selecting this record display value,
@@ -128,11 +138,17 @@ class ListColumn
         if (isset($config['sortable'])) {
             $this->sortable = $config['sortable'];
         }
+        if (isset($config['clickable'])) {
+            $this->clickable = $config['clickable'];
+        }
         if (isset($config['invisible'])) {
             $this->invisible = $config['invisible'];
         }
         if (isset($config['valueFrom'])) {
             $this->valueFrom = $config['valueFrom'];
+        }
+        if (isset($config['default'])) {
+            $this->defaults = $config['default'];
         }
         if (isset($config['select'])) {
             $this->sqlSelect = $config['select'];

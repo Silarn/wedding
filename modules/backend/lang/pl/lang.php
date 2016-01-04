@@ -18,10 +18,13 @@ return [
             'label' => 'Odmowa dostępu',
             'help' => "Nie posiadasz odpowiednich uprawnień, aby zobaczyć tą stronę.",
             'cms_link' => 'Powrót do panelu back-end'
+        ],
+        'invalid_token' => [
+            'label' => 'Nieprawidłowy żeton bezpieczeństwa'
         ]
     ],
     'partial' => [
-        'not_found_name' => "Blok ':name' nie zostały odnaleziony."
+        'not_found_name' => "Blok ':name' nie został odnaleziony."
     ],
     'account' => [
         'sign_out' => 'Wyloguj',
@@ -79,13 +82,14 @@ return [
         'first_name' => 'Imię',
         'last_name' => 'Nazwisko',
         'full_name' => 'Pełna nazwa',
-        'email' => 'Email',
+        'email' => 'E-mail',
         'groups' => 'Grupa',
         'groups_comment' => 'Określ, do której grupy należy ten użytkownik',
-        'avatar' => 'Avatar',
+        'avatar' => 'Awatar',
         'password' => 'Hasło',
         'password_confirmation' => 'Potwierdź hasło',
         'permissions' => 'Uprawnienia',
+        'account' => 'Konto',
         'superuser' => 'Super Użytkownik',
         'superuser_comment' => 'Zaznacz to pole jeżeli chcesz zezwolić temu użytkownikowi na pełny dostęp do panelu.',
         'send_invite' => 'Wyślij zaproszenie wiadomością email',
@@ -106,7 +110,8 @@ return [
             'list_title' => 'Zarządzaj grupami',
             'new' => 'Nowa grupa Administratorów',
             'delete_confirm' => 'Jesteś pewny, że chcesz usunąć tą grupę administratorów?',
-            'return' => 'Wróc do listy grup',
+            'return' => 'Wróć do listy grup',
+            'users_count' => 'Użytkowników'
         ],
         'preferences' => [
             'not_authenticated' => 'Nie znaleziono uwierzytelnionego użytkownika, aby załadować lub zapisać ustawienia.'
@@ -129,13 +134,23 @@ return [
         'setup_title' => 'Ustawienia listy',
         'setup_help' => 'Użyj pól wyboru, aby wybrać kolumny, które chcesz zobaczyć w liście. Możesz zmienić pozycję kolumny przeciągająć ją w dół lub w górę.',
         'records_per_page' => 'Rekordy na stronę',
-        'records_per_page_help' => 'Wybierz liczbnę rekordów do wyświetlenia na stronę. Wyższa liczba rekordów na jedną stronę może zmniejszyć wydajność.'
+        'records_per_page_help' => 'Wybierz liczbnę rekordów do wyświetlenia na stronę. Wyższa liczba rekordów na jedną stronę może zmniejszyć wydajność.',
+        'delete_selected' => 'Usuń zaznaczone',
+        'delete_selected_empty' => 'Nie wybrano elementów do usunięcia.',
+        'delete_selected_confirm' => 'Usunąć zaznaczone elementy?',
+        'delete_selected_success' => 'Pomyślnie usunięto zaznaczone elementy.'
     ],
     'fileupload' => [
         'attachment' => 'Załącznik',
         'help' => 'Dodaj tytuł oraz opis załącznika.',
         'title_label' => 'Tytuł',
-        'description_label' => 'Opis'
+        'description_label' => 'Opis',
+        'default_prompt' => 'Kliknij %s lub upuść plik aby przesłać',
+        'attachment_url' => 'URL załącznika',
+        'upload_file' => 'Prześlij plik',
+        'upload_error' => 'Błąd przesyłania',
+        'remove_confirm' => 'Jesteś pewien?',
+        'remove_file' => 'Usuń plik'
     ],
     'form' => [
         'create_title' => 'Nowy :name',
@@ -176,7 +191,8 @@ return [
         'or' => 'lub',
         'confirm_tab_close' => 'Czy naprawdę chcesz zamknąć tą kartę? Wszystkie niezapisane zmiany zostaną utracone.',
         'behavior_not_ready' => 'Zachowanie formularza nie zostało zainicjowane, sprawdź czy wywołałeś initForm() w swoim kontrolerze.',
-        'preview_no_files_message' => 'Pliki nie są wysyłane',
+        'preview_no_files_message' => 'Brak wgranych plików.',
+        'preview_no_record_message' => 'Break zaznaczonych elementów.',
         'select' => 'Zaznacz',
         'select_all' => 'wszystkie',
         'select_none' => 'żadne',
@@ -184,9 +200,10 @@ return [
         'insert_row' => 'Wstaw wiersz',
         'delete_row' => 'Skasuj wiersz',
         'concurrency_file_changed_title' => 'Plik został zmieniony.',
-        'concurrency_file_changed_description' => "Plik, który edytujesz sotał zmieniony na dysku przez innego użytkownika. Możesz przeładować plik i stracić swoje zmiany lub nadpisać plik na dysku."
+        'concurrency_file_changed_description' => "Plik, który edytujesz został zmieniony na dysku przez innego użytkownika. Możesz przeładować plik i stracić swoje zmiany lub nadpisać plik na dysku."
     ],
     'relation' => [
+        'missing_config' => "Zachowanie relacji nie zawiera konfiguracji dla pola ':config'.",
         'missing_definition' => "Zachowanie relacji nie zawiera definicji dla pola ':field'.",
         'missing_model' => "Zachowanie relacji użyte w klasie :class nie zawiera definicji modelu.",
         'invalid_action_single' => "Ta akcja nie może zostać wykonana na pojedynczej zależności.",
@@ -196,11 +213,13 @@ return [
         'add' => "Dodaj",
         'add_selected' => "Dodaj zaznaczony",
         'add_a_new' => "Dodaj nowy :name",
+        'link_selected' => 'Dołącz zaznaczone',
+        'link_a_new' => 'Dołącz nowy :name',
         'cancel' => "Anuluj",
         'close' => "Zamknij",
         'add_name' => "Dodaj :name",
         'create' => "Stwórz",
-        'create_name' => "Create :name",
+        'create_name' => "Stwórz :name",
         'update' => "Aktualizuj",
         'update_name' => "Aktualizuj :name",
         'preview' => "Podgląd",
@@ -210,6 +229,11 @@ return [
         'delete' => "Skasuj",
         'delete_name' => "Skasuj :name",
         'delete_confirm' => "Na pewno?",
+        'link' => 'Dołącz',
+        'link_name' => 'Dołącz :name',
+        'unlink' => 'Odłącz',
+        'unlink_name' => 'Odłącz :name',
+        'unlink_confirm' => 'Jesteś pewien?'
     ],
     'model' => [
         'name' => 'Model',
@@ -228,13 +252,14 @@ return [
     ],
     'editor' => [
         'menu_label' => 'Ustawienia edytora kodu',
-        'menu_description' => 'Personalizuj ustawienia edytora kodu, takie jak wielkość fontu oraz kolorostyka.',
-        'font_size' => 'Wielkość fontu',
+        'menu_description' => 'Personalizuj ustawienia edytora kodu, takie jak wielkość czcionki oraz kolorostyka.',
+        'font_size' => 'Wielkość czcionki',
         'tab_size' => 'Wielkość karty',
         'use_hard_tabs' => 'Wcięcie tabulaturą',
         'code_folding' => 'Zawijanie kodu',
         'word_wrap' => 'Zawijanie wierszy',
         'highlight_active_line' => 'Podświetl aktywne linie',
+        'auto_closing' => 'Automatycznie zamykaj tagi i specjalne znaki',
         'show_invisibles' => 'Pokaż niewidzialne znaki',
         'show_gutter' => 'Pokaż gutter',
         'theme' => 'Schemat kolorów'
@@ -287,6 +312,46 @@ return [
         'email' => 'Email'
     ],
     'filter' => [
-      'all' => 'wszystkie'
-    ]
+        'all' => 'wszystkie'
+    ],
+    'import_export' => [
+        'upload_csv_file' => '1. Wgraj plik CSV',
+        'import_file' => 'Importuj Plik',
+        'first_row_contains_titles' => 'Pierwszy wiersz zawiera nazwy kolumn',
+        'first_row_contains_titles_desc' => 'Zostaw to pole zaznaczone, jeżeli pierwszy wiersz w pliku CSV zawiera tytuły kolumn.',
+        'match_columns' => '2. Przypisz kolumny z pliku do pól w bazie danych',
+        'file_columns' => 'Kolumny w pliku',
+        'database_fields' => 'Pola w bazie',
+        'set_import_options' => '3. Ustaw opcje importu',
+        'export_output_format' => '1. Format eksportowanego pliku',
+        'file_format' => 'Format pliku',
+        'standard_format' => 'Standardowy',
+        'custom_format' => 'Niestandardowy',
+        'delimiter_char' => 'Znak rozdzielający (delimiter)',
+        'enclosure_char' => 'Znak zawierający (enclosure)',
+        'escape_char' => 'Znak unikania (escape)',
+        'select_columns' => '2. Wybierz kolumny do eksportu',
+        'column' => 'Kolumna',
+        'columns' => 'Kolumny',
+        'set_export_options' => '3. Ustaw opcje eksportu',
+        'show_ignored_columns' => 'Pokaż ignorowane kolumny',
+        'auto_match_columns' => 'Automatycznie przypisz kolumny',
+        'created' => 'Stworzono',
+        'updated' => 'Zaktualizowano',
+        'skipped' => 'Pominięto',
+        'warnings' => 'Ostrzeżenia',
+        'errors' => 'Błędy',
+        'skipped_rows' => 'Pominięte wiersze',
+        'import_progress' => 'Postęp importu',
+        'processing' => 'Przetwarzanie',
+        'import_error' => 'Błąd importu',
+        'upload_valid_csv' => 'Wgraj prawidłowy plik CSV.',
+        'drop_column_here' => 'Upuść kolumnę tutaj...',
+        'ignore_this_column' => 'Ignoruj tą kolumnę',
+        'processing_successful_line1' => 'Procedura eksportu zakończyła się powodzeniem!',
+        'processing_successful_line2' => 'Przeglądarka automatycznie zaproponuje Ci pobranie pliku.',
+        'export_progress' => 'Postęp eksportu',
+        'export_error' => 'Błąd eksportu',
+        'column_preview' => 'Podgląd kolumny',
+    ],
 ];

@@ -67,6 +67,11 @@ class CodeEditor extends FormWidgetBase
      */
     public $theme = 'twilight';
 
+    /**
+     * @var boolean If true, the editor is set to read-only mode
+     */
+    public $readOnly = false;
+
     //
     // Object properties
     //
@@ -94,6 +99,7 @@ class CodeEditor extends FormWidgetBase
             'fontSize',
             'margin',
             'theme',
+            'readOnly'
         ]);
     }
 
@@ -126,6 +132,7 @@ class CodeEditor extends FormWidgetBase
         $this->vars['stretch'] = $this->formField->stretch;
         $this->vars['size'] = $this->formField->size;
         $this->vars['name'] = $this->formField->getName();
+        $this->vars['readOnly'] = $this->readOnly;
 
         // Double encode when escaping
         $this->vars['value'] = htmlentities($this->getLoadValue(), ENT_QUOTES, 'UTF-8', true);
@@ -134,13 +141,10 @@ class CodeEditor extends FormWidgetBase
     /**
      * {@inheritDoc}
      */
-    public function loadAssets()
+    protected function loadAssets()
     {
         $this->addCss('css/codeeditor.css', 'core');
-        $this->addJs('vendor/emmet/emmet.js', 'core');
-        $this->addJs('vendor/ace/ace.js', 'core');
-        $this->addJs('vendor/ace/ext-emmet.js', 'core');
-        $this->addJs('js/codeeditor.js', 'core');
+        $this->addJs('js/build-min.js', 'core');
     }
 
     /**

@@ -6,18 +6,18 @@
         "source": {
             "type": "git",
             "url": "https://github.com/october-widgets/hasmany.git",
-            "reference": "41a13066d05ff406a0fbbf1a9fc6545ca74bf0da"
+            "reference": "dc906963a6bc9f0aa868ced1df39e9ccceed5c9b"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/october-widgets/hasmany/zipball/41a13066d05ff406a0fbbf1a9fc6545ca74bf0da",
-            "reference": "41a13066d05ff406a0fbbf1a9fc6545ca74bf0da",
+            "url": "https://api.github.com/repos/october-widgets/hasmany/zipball/dc906963a6bc9f0aa868ced1df39e9ccceed5c9b",
+            "reference": "dc906963a6bc9f0aa868ced1df39e9ccceed5c9b",
             "shasum": ""
         },
         "require": {
             "php": ">=5.4.0"
         },
-        "time": "2015-03-10 05:42:34",
+        "time": "2015-04-09 16:09:36",
         "type": "library",
         "extra": {
             "branch-alias": {

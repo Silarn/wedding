@@ -78,18 +78,18 @@ return
 this.toolbar=document.createElement('div')
 this.toolbar.setAttribute('class','toolbar')
 if(this.options.adding){var addBelowButton=document.createElement('a')
-addBelowButton.setAttribute('class','btn add-table-row-below')
+addBelowButton.setAttribute('class','btn table-icon add-table-row-below')
 addBelowButton.setAttribute('data-cmd','record-add-below')
 this.toolbar.appendChild(addBelowButton)
-if(this.navigation.paginationEnabled()||!this.options.rowSorting){addBelowButton.textContent='Add row'}else{addBelowButton.textContent='Add row below'
+if(this.navigation.paginationEnabled()||!this.options.rowSorting){addBelowButton.textContent=this.options.btnAddRowLabel}else{addBelowButton.textContent=this.options.btnAddRowBelowLabel
 var addAboveButton=document.createElement('a')
-addAboveButton.setAttribute('class','btn add-table-row-above')
+addAboveButton.setAttribute('class','btn table-icon add-table-row-above')
 addAboveButton.textContent='Add row above'
 addAboveButton.setAttribute('data-cmd','record-add-above')
 this.toolbar.appendChild(addAboveButton)}}
 if(this.options.deleting){var deleteButton=document.createElement('a')
-deleteButton.setAttribute('class','btn delete-table-row')
-deleteButton.textContent='Delete row'
+deleteButton.setAttribute('class','btn table-icon delete-table-row')
+deleteButton.textContent=this.options.btnDeleteRowLabel
 deleteButton.setAttribute('data-cmd','record-delete')
 this.toolbar.appendChild(deleteButton)}
 this.tableContainer.appendChild(this.toolbar)}
@@ -134,7 +134,7 @@ cell.setAttribute('data-column',columnName)
 cell.setAttribute('data-column-type',column.type)
 dataContainer.setAttribute('type','hidden')
 dataContainer.setAttribute('data-container','data-container')
-dataContainer.value=records[i][columnName]!==undefined?records[i][columnName]:""
+dataContainer.value=this.formatDataContainerValue(records[i][columnName])
 cellContentContainer.setAttribute('class','content-container')
 cell.appendChild(cellContentContainer)
 row.appendChild(cell)
@@ -150,6 +150,9 @@ this.dataTable=dataTable
 this.updateColumnWidth()
 this.updateScrollbar()
 this.navigation.buildPagination(totalCount)}
+Table.prototype.formatDataContainerValue=function(value){if(value===undefined){return''}
+if(typeof value==='boolean'){return value?1:''}
+return value}
 Table.prototype.fetchRecords=function(onSuccess){this.dataSource.getRecords(this.navigation.getPageFirstRowOffset(),this.options.recordsPerPage,onSuccess)}
 Table.prototype.updateScrollbar=function(){if(!this.options.height)
 return
@@ -288,6 +291,8 @@ if(!this.validate()){ev.preventDefault()
 return}
 var fieldName=this.options.alias.indexOf('[')>-1?this.options.alias+'[TableData]':this.options.alias+'TableData';data.options.data[fieldName]=this.dataSource.getAllData()}}
 Table.prototype.onToolbarClick=function(ev){var target=this.getEventTarget(ev),cmd=target.getAttribute('data-cmd')
+if(!cmd)
+return
 switch(cmd){case'record-add-below':this.addRecord('below')
 break
 case'record-add-above':this.addRecord('above')
@@ -317,6 +322,17 @@ this.tableContainer=null
 this.$el=null
 this.dataTableContainer=null
 this.activeCell=null}
+Table.prototype.setRowValues=function(rowIndex,rowValues){var row=this.findRowByIndex(rowIndex)
+if(!row){return false}
+var dataUpdated=false
+for(var i=0,len=row.children.length;i<len;i++){var cell=row.children[i],cellColumnName=this.getCellColumnName(cell)
+for(var rowColumnName in rowValues){if(rowColumnName==cellColumnName){this.setCellValue(cell,rowValues[rowColumnName],true)
+dataUpdated=true}}}
+if(dataUpdated){var originalEditedRowKey=this.editedRowKey
+this.editedRowKey=this.getRowKey(row)
+this.commitEditedRow()
+this.editedRowKey=originalEditedRowKey}
+return true}
 Table.prototype.getElement=function(){return this.el}
 Table.prototype.getAlias=function(){return this.options.alias}
 Table.prototype.getTableContainer=function(){return this.tableContainer}
@@ -352,6 +368,7 @@ Table.prototype.parentContainsElement=function(parent,element){while(element&&el
 return element?true:false}
 Table.prototype.getCellValue=function(cellElement){return cellElement.querySelector('[data-container]').value}
 Table.prototype.getCellRowKey=function(cellElement){return parseInt(cellElement.parentNode.getAttribute('data-row'))}
+Table.prototype.getRowKey=function(rowElement){return parseInt(rowElement.getAttribute('data-row'))}
 Table.prototype.findRowByKey=function(key){return this.dataTable.querySelector('tbody tr[data-row="'+key+'"]')}
 Table.prototype.findRowByIndex=function(index){return this.getDataTableBody().children[index]}
 Table.prototype.getCellRowIndex=function(cellElement){return parseInt(cellElement.parentNode.rowIndex)}
@@ -363,11 +380,13 @@ Table.prototype.getRowData=function(row){var result={}
 for(var i=0,len=row.children.length;i<len;i++){var cell=row.children[i]
 result[cell.getAttribute('data-column')]=this.getCellValue(cell)}
 return result}
-Table.prototype.setCellValue=function(cellElement,value){var dataContainer=cellElement.querySelector('[data-container]')
+Table.prototype.getCellColumnName=function(cellElement){return cellElement.getAttribute('data-column')}
+Table.prototype.setCellValue=function(cellElement,value,suppressEvents){var dataContainer=cellElement.querySelector('[data-container]')
 if(dataContainer.value!=value){dataContainer.value=value
 this.markCellRowDirty(cellElement)
-this.notifyRowProcessorsOnChange(cellElement)}}
-Table.DEFAULTS={clientDataSourceClass:'client',keyColumn:'id',recordsPerPage:false,data:null,postback:true,postbackHandlerName:'onSave',adding:true,deleting:true,toolbar:true,rowSorting:false,height:false,dynamicHeight:false}
+this.notifyRowProcessorsOnChange(cellElement)
+if(suppressEvents===undefined||!suppressEvents){this.$el.trigger('oc.tableCellChanged',[this.getCellColumnName(cellElement),value,this.getCellRowIndex(cellElement)])}}}
+Table.DEFAULTS={clientDataSourceClass:'client',keyColumn:'id',recordsPerPage:false,data:null,postback:true,postbackHandlerName:'onSave',adding:true,deleting:true,toolbar:true,rowSorting:false,height:false,dynamicHeight:false,btnAddRowLabel:'Add row',btnAddRowBelowLabel:'Add row below',btnDeleteRowLabel:'Delete row'}
 var old=$.fn.table
 $.fn.table=function(option){var args=Array.prototype.slice.call(arguments,1),result=undefined
 this.each(function(){var $this=$(this)
@@ -397,12 +416,11 @@ var paginationContainer=this.tableObj.getElement().querySelector('.pagination'),
 this.pageCount=this.calculatePageCount(recordCount,this.tableObj.options.recordsPerPage)
 if(!paginationContainer){paginationContainer=document.createElement('div')
 paginationContainer.setAttribute('class','pagination')
-newPaginationContainer=true}else
-curRecordCount=this.getRecordCount(paginationContainer)
+newPaginationContainer=true}
+else{curRecordCount=this.getRecordCount(paginationContainer)}
 if(newPaginationContainer||curRecordCount!=recordCount){paginationContainer.setAttribute('data-record-count',recordCount)
 var pageList=this.buildPaginationLinkList(recordCount,this.tableObj.options.recordsPerPage,this.pageIndex)
-if(!newPaginationContainer)
-paginationContainer.replaceChild(pageList,paginationContainer.children[0])
+if(!newPaginationContainer){paginationContainer.replaceChild(pageList,paginationContainer.children[0])}
 else{paginationContainer.appendChild(pageList)
 this.tableObj.getElement().appendChild(paginationContainer)}}else{this.markActiveLinkItem(paginationContainer,this.pageIndex)}}
 Navigation.prototype.calculatePageCount=function(recordCount,recordsPerPage){var pageCount=Math.ceil(recordCount/recordsPerPage)
@@ -415,6 +433,7 @@ Navigation.prototype.buildPaginationLinkList=function(recordCount,recordsPerPage
 for(var i=0;i<pageCount;i++){var item=document.createElement('li'),link=document.createElement('a')
 if(i==pageIndex)
 item.setAttribute('class','active')
+$(item).addClass('pagination-link')
 link.innerText=i+1
 link.setAttribute('data-page-index',i)
 link.setAttribute('href','#')
@@ -423,8 +442,7 @@ pageList.appendChild(item)}
 return pageList}
 Navigation.prototype.markActiveLinkItem=function(paginationContainer,pageIndex){var activeItem=paginationContainer.querySelector('.active'),list=paginationContainer.children[0]
 activeItem.setAttribute('class','')
-for(var i=0,len=list.children.length;i<len;i++){if(i==pageIndex)
-list.children[i].setAttribute('class','active')}}
+for(var i=0,len=list.children.length;i<len;i++){if(i==pageIndex){list.children[i].setAttribute('class','active')}}}
 Navigation.prototype.gotoPage=function(pageIndex,onSuccess){this.tableObj.unfocusTable()
 if(!this.tableObj.validate())
 return
@@ -450,7 +468,8 @@ return
 var row=this.tableObj.activeCell.parentNode,newRow=!ev.shiftKey?row.nextElementSibling:row.parentNode.children[row.parentNode.children.length-1],cellIndex=forceCellIndex!==undefined?forceCellIndex:this.tableObj.activeCell.cellIndex
 if(newRow){var cell=newRow.children[cellIndex]
 if(cell)
-this.tableObj.focusCell(cell)}else{if(!this.paginationEnabled())
+this.tableObj.focusCell(cell)}
+else{if(!this.paginationEnabled())
 return
 if(this.pageIndex<this.pageCount-1){var self=this
 this.gotoPage(this.pageIndex+1,function navDownPageSuccess(){self.focusCell('top',cellIndex)
@@ -524,7 +543,7 @@ return this.navigateRight(ev)
 if(ev.keyCode==9)
 return this.navigateNext(ev)}
 Navigation.prototype.onClick=function(ev){var target=this.tableObj.getEventTarget(ev,'A')
-if(!target)
+if(!target||!$(target).hasClass('pagination-link'))
 return
 var pageIndex=parseInt(target.getAttribute('data-page-index'))
 if(pageIndex===null)
@@ -552,7 +571,8 @@ this.data=JSON.parse(dataString)};Client.prototype=Object.create(BaseProto)
 Client.prototype.constructor=Client
 Client.prototype.dispose=function(){BaseProto.dispose.call(this)
 this.data=null}
-Client.prototype.getRecords=function(offset,count,onSuccess){if(!count){onSuccess(this.data,this.data.length)}else{onSuccess(this.data.slice(offset,offset+count),this.data.length)}}
+Client.prototype.getRecords=function(offset,count,onSuccess){if(!count){onSuccess(this.data,this.data.length)}
+else{onSuccess(this.data.slice(offset,offset+count),this.data.length)}}
 Client.prototype.createRecord=function(recordData,placement,relativeToKey,offset,count,onSuccess){if(placement==='bottom'){this.data.push(recordData)}
 else if(placement=='above'||placement=='below'){var recordIndex=this.getIndexOfKey(relativeToKey)
 if(placement=='below')
@@ -658,6 +678,9 @@ return caretPosition==0
 if(direction=='right')
 return caretPosition==editor.value.length
 return true}
+StringProcessor.prototype.onRowValueChanged=function(columnName,cellElement){if(columnName!=this.columnName){return}
+var value=this.tableObj.getCellValue(cellElement)
+this.setViewContainerValue(cellElement,value)}
 StringProcessor.prototype.onFocusTimeout=function(){if(!this.activeCell)
 return
 var editor=this.activeCell.querySelector('.string-input')
@@ -690,18 +713,26 @@ CheckboxProcessor.prototype.isCellFocusable=function(){return false}
 CheckboxProcessor.prototype.renderCell=function(value,cellContentContainer){var checkbox=document.createElement('div')
 checkbox.setAttribute('data-checkbox-element','true')
 checkbox.setAttribute('tabindex','0')
-if(value&&value!=0&&value!="false")
-checkbox.setAttribute('class','checked')
+if(value&&value!=0&&value!="false"){checkbox.setAttribute('class','checked')}
 cellContentContainer.appendChild(checkbox)}
 CheckboxProcessor.prototype.onFocus=function(cellElement,isClick){cellElement.querySelector('div[data-checkbox-element]').focus()}
 CheckboxProcessor.prototype.onKeyDown=function(ev){if(ev.keyCode==32)
 this.onClick(ev)}
 CheckboxProcessor.prototype.onClick=function(ev){var target=this.tableObj.getEventTarget(ev,'DIV')
-if(target.getAttribute('data-checkbox-element')){this.changeState(target)}}
+if(target.getAttribute('data-checkbox-element')){var container=this.getCheckboxContainerNode(target)
+if(container.getAttribute('data-column')!==this.columnName){return}
+this.changeState(target)
+$(ev.target).trigger('change')}}
 CheckboxProcessor.prototype.changeState=function(divElement){var cell=divElement.parentNode.parentNode
 if(divElement.getAttribute('class')=='checked'){divElement.setAttribute('class','')
-this.tableObj.setCellValue(cell,0)}else{divElement.setAttribute('class','checked')
+this.tableObj.setCellValue(cell,0)}
+else{divElement.setAttribute('class','checked')
 this.tableObj.setCellValue(cell,1)}}
+CheckboxProcessor.prototype.getCheckboxContainerNode=function(checkbox){return checkbox.parentNode.parentNode}
+CheckboxProcessor.prototype.onRowValueChanged=function(columnName,cellElement){if(columnName!=this.columnName){return}
+var checkbox=cellElement.querySelector('div[data-checkbox-element]'),value=this.tableObj.getCellValue(cellElement)
+if(value&&value!=0&&value!="false"){checkbox.setAttribute('class','checked')}
+else{checkbox.setAttribute('class','')}}
 $.oc.table.processor.checkbox=CheckboxProcessor;}(window.jQuery);+function($){"use strict";if($.oc.table===undefined)
 throw new Error("The $.oc.table namespace is not defined. Make sure that the table.js script is loaded.");if($.oc.table.processor===undefined)
 throw new Error("The $.oc.table.processor namespace is not defined. Make sure that the table.processor.base.js script is loaded.");var Base=$.oc.table.processor.base,BaseProto=Base.prototype
